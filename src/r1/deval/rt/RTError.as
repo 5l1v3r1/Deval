@@ -14,13 +14,15 @@ package r1.deval.rt
 
       private var lines:Array;
       
-      public function RTError(param1:String, param2:String = null, param3:String = null)
+      public function RTError(param1:String, param2:String = null, param3:String = null,_linenos:Array=null,_lines:Array=null)
       {
          super(ParseError.processMessage(param1));
          _param1 = param2;
          _param2 = param3;
-		 this.lines=new Array();
-		 this.linenos=new Array();
+         if (_lines==null) this.lines=new Array();
+         else this.lines=_lines;
+         if (_linenos==null) this.linenos=new Array();
+         else this.linenos=_linenos;
       }
       
       public function pushline(line:String,lineno:int):void {

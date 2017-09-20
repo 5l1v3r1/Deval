@@ -11,12 +11,15 @@ package r1.deval.parser
       private var _lineno:int;
       
       private var _id:String;
+
+      private var _line:String;
       
-      public function ParseError(param1:String, param2:String, param3:int = 0)
+      public function ParseError(param1:String, param2:String, param3:int = 0, param4:String="")
       {
          super(processMessage(param1));
          this._id = param2;
          this._lineno = param3;
+         this._line=param4;
       }
       
       public static function processMessage(param1:String) : String
@@ -35,6 +38,9 @@ package r1.deval.parser
       {
          return _lineno;
       }
+      public function get line():String {
+         return _line;
+      }
       
       public function get id() : String
       {
@@ -50,13 +56,13 @@ package r1.deval.parser
          }
          if(_lineno > 0)
          {
-            _loc1_ = _loc1_ + (" [line:" + _lineno);
+            _loc1_ = _loc1_ + ("\n\tat line:" + _lineno+": "+_line);
          }
-         if(id)
-         {
-            _loc1_ = _loc1_ + ("/" + id);
-         }
-         return _loc1_ + "]";
+//         if(id)
+//         {
+//            _loc1_ = _loc1_ + ("/" + id);
+//         }
+         return _loc1_;
       }
    }
 }

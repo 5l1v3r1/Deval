@@ -495,7 +495,8 @@ package r1.deval.parser
       
       public function reportError(param1:String, param2:String, param3:String = null, param4:String = null, param5:String = null) : void
       {
-         throw new ParseError(Env.getMessage(param1,param3,param4,param5),param2,ts.getLineno());
+         var v:int;
+         throw new ParseError(Env.getMessage(param1,param3,param4,param5),param2,(v=ts.getLineno()),ts.getLineFromNo(v));
       }
       
       private function memberExprTail(param1:Boolean, param2:IExpr) : IExpr
