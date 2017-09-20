@@ -733,14 +733,25 @@ package r1.deval.parser
          }
       }
       
-      public function matchChar(param1:int) : Boolean
+      public function matchChar(...param1) : Boolean
       {
-         var _loc2_:int = getChar();
-         if(_loc2_ == param1)
-         {
-            return true;
+         var x:Array=new Array();
+         var j:int,k:int;
+         var res:Boolean=true;
+         for (var i:int=0;i<param1.length;i++) {
+            k=getChar();
+            if (k==CHAR_EOF) break;
+            x.push(k);
+            j=param1[i];
+            if (j!=k) {
+               res=false;
+               break;
+            }
          }
-         ungetChar(_loc2_);
+         if (res) return true;
+         for each (k in x) {
+            ungetChar(k);
+         }
          return false;
       }
       
@@ -1018,6 +1029,10 @@ package r1.deval.parser
                      case CHAR_COLON:
                         return !!matchChar(CHAR_COLON)?int(COLONCOLON):int(COLON);
                      case CHAR_DOT:
+                        if(matchChar(CHAR_DOT,CHAR_DOT))
+                        {
+                           return DOTDOTDOT;
+                        }
                         if(matchChar(CHAR_DOT))
                         {
                            return DOTDOT;

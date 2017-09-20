@@ -406,6 +406,8 @@ package r1.deval.parser
       static const DOTDOT:int = 139;
       
       static const COLONCOLON:int = 140;
+
+      static const DOTDOTDOT:int=191;
       
       public static const ESCXMLATTR:int = 71;
       

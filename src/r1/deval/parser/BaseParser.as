@@ -260,7 +260,7 @@ package r1.deval.parser
             {
                break;
             }
-            if(_loc3_ == NAME)
+            else if(_loc3_ == NAME )
             {
                _loc4_.push(ts.getString());
                consumeToken();
@@ -287,9 +287,16 @@ package r1.deval.parser
                consumeToken();
                continue loop0;
             }
+            else if (_loc3_==DOTDOTDOT) {
+               consumeToken();
+               if (peekToken()!=NAME) reportError("msg.invalid.params","Kf6");
+               _loc4_.push("..."+ts.getString());
+               consumeToken();
+               if (peekToken()!=RP) reportError("msg.invalid.params","Kf7");
+            }
             else
             {
-               continue;
+               reportError("msg.invalid.params","Kf5");
             }
          }
          consumeToken();

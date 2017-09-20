@@ -9,6 +9,8 @@ package r1.deval.rt
       private var params:Array;
       
       public var name:String;
+
+      private var restParam:String=null;
       
       private var tail:EndBlock;
       
@@ -16,6 +18,9 @@ package r1.deval.rt
       {
          super();
          this.name = param1 == null?"_anonymous_":param1;
+         if (param2.length>0&&param2[param2.length-1].substring(0,3)=="...") {
+            restParam=param2.pop().substr(3);
+         }
          this.params = param2;
          this.head = param3;
          this.tail = param4;
@@ -54,6 +59,11 @@ package r1.deval.rt
          {
             context[params[idx]] = paramVals[idx];
             idx++;
+         }
+         if (restParam!=null) {
+            var v:Array=new Array();
+            for (var i:int=len;i<paramVals.length;i++) v.push(paramVals[i]);
+            context[restParam]=v;
          }
          try
          {
