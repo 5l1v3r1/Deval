@@ -183,6 +183,7 @@ package r1.deval.rt
       public function exec() : Block
       {
          var s:IStmt = null;
+         Env.pushObject({});
          if(stmts != null)
          {
             for each(s in stmts)
@@ -197,10 +198,12 @@ package r1.deval.rt
                   {
                      (e as RTError).pushline(s.line,s.lineno);
                   }
+                  Env.popObject();
                   throw e;
                }
             }
          }
+         Env.popObject();
          if(_cond == null || _cond.getBoolean())
          {
             return _trueNext;

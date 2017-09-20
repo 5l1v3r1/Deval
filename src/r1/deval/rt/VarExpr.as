@@ -18,7 +18,7 @@ package r1.deval.rt
       override public function getAny() : Object
       {
          var _loc1_:Object = init == null?null:init.getAny();
-         Env.setProperty(name,_loc1_);
+         Env.setNewProperty(name,_loc1_);
          return _loc1_;
       }
    }

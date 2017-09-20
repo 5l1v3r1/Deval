@@ -211,7 +211,7 @@ package r1.deval.rt
             }
             finally
             {
-               while (popEnv()) {}
+               popEnv();
             }
          }
          return null;
@@ -238,6 +238,9 @@ package r1.deval.rt
          _curEnv.setProperty(param1,param2);
       }
       
+      public static function setNewProperty(param1:*,param2:Object):void {
+         _curEnv.setNewProperty(param1,param2);
+      }
       public static function printf(... rest) : void
       {
          display(getMessageAsIs.apply(null,rest));
@@ -422,6 +425,9 @@ package r1.deval.rt
          return scopeChain.shift();
       }
       
+      function setNewProperty(param1:*,param2:*) : void {
+         scopeChain[0][param1]=param2;
+      }
       function setProperty(param1:*, param2:*) : void
       {
          var _loc3_:* = undefined;

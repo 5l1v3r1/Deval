@@ -64,7 +64,7 @@ package r1.deval.rt
          }
          finally
          {
-            while(Env.popObject()) {}
+            Env.popObject();
          }
          return null;
       }

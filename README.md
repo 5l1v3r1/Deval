@@ -4,9 +4,9 @@
 
 * Added support for importing package level functions like flash.net.navigateToURL
 * Changed error message to print stack trace instead of just the error
+* Fixed the problem with variable scopes so that statements like `var x:int;` can be used to define variables in the local scope
 
 ## Todo
 
 * Add support for try...catch statements
 * Add the option to use import statements like `import flash.net.*;`
-* Fix the problem with variable scopes
