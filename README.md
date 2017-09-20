@@ -3,6 +3,7 @@
 ## Changes
 
 * Added support for importing package level functions like flash.net.navigateToURL
+* Changed error message to print stack trace instead of just the error
 
 ## Todo
 

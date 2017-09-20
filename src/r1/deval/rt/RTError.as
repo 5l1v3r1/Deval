@@ -10,31 +10,29 @@ package r1.deval.rt
       
       private var _param2:String;
       
-      private var _lineno:int;
+      private var linenos:Array;
+
+      private var lines:Array;
       
       public function RTError(param1:String, param2:String = null, param3:String = null)
       {
          super(ParseError.processMessage(param1));
          _param1 = param2;
          _param2 = param3;
+		 this.lines=new Array();
+		 this.linenos=new Array();
       }
       
-      public function set lineno(param1:int) : void
-      {
-         _lineno = param1;
+      public function pushline(line:String,lineno:int):void {
+         this.lines.push(line);
+         this.linenos.push(lineno);
       }
-      
-      public function get lineno() : int
-      {
-         return _lineno;
-      }
-      
       public function toString() : String
       {
          var _loc1_:String = "Runtime Error: " + super.message;
-         if(_lineno > 0)
-         {
-            _loc1_ = _loc1_ + (" [line:" + _lineno + "]");
+         for (var j:int=0;j<lines.length;j++) {
+            if (j==0) _loc1_+="\n";
+            _loc1_+="\tat line: "+linenos[j]+": "+lines[j];
          }
          return _loc1_;
       }

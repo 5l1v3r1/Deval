@@ -1,6 +1,7 @@
 package r1.deval.rt
 {
    import r1.deval.parser.ParserConsts;
+   import r1.deval.parser.TokenStream;
    
    public class UnaryStmt extends EmptyStmt
    {
@@ -10,9 +11,9 @@ package r1.deval.rt
       
       private var type:int;
       
-      public function UnaryStmt(param1:int, param2:*, param3:int)
+      public function UnaryStmt(param1:int, param2:*, param3:int,param4:TokenStream)
       {
-         super(param3);
+         super(param3,param4);
          this.type = param1;
          this.value = param2;
       }

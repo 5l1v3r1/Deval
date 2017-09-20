@@ -92,7 +92,7 @@ package r1.deval.parser
          {
             consumeToken();
             checkAssignable(_loc1_);
-            _loc1_ = exprFactory.createAssignment(_loc1_ as ISettable,assignExpr(),_loc2_,ts.getLineno());
+            _loc1_ = exprFactory.createAssignment(_loc1_ as ISettable,assignExpr(),_loc2_,ts.getLineno(),ts);
          }
          return _loc1_;
       }

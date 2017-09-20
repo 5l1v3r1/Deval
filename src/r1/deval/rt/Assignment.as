@@ -1,6 +1,7 @@
 package r1.deval.rt
 {
    import r1.deval.parser.ParserConsts;
+   import r1.deval.parser.TokenStream;
    
    class Assignment extends ObjectExprBase implements IStmt
    {
@@ -12,17 +13,20 @@ package r1.deval.rt
       
       private var _next:IStmt;
       
+      private var tokenstream:TokenStream;
+
       private var _lineno:int;
       
       protected var right:IExpr;
       
-      function Assignment(param1:ISettable, param2:IExpr, param3:int, param4:int)
+      function Assignment(param1:ISettable, param2:IExpr, param3:int, param4:int, param5:TokenStream)
       {
          super();
          this.left = param1;
          this.right = param2;
          this.op = param3;
-         this._lineno = param4;
+         this.tokenstream = param5;
+         this._lineno=param4;
       }
       
       public function set next(param1:IStmt) : void
@@ -40,6 +44,10 @@ package r1.deval.rt
          return _lineno;
       }
       
+      public function get line():String {
+         return tokenstream.getLineFromNo(_lineno);
+      }
+
       override public function getAny() : Object
       {
          var _loc1_:Object = null;

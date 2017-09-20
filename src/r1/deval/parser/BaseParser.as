@@ -47,7 +47,6 @@ package r1.deval.parser
       private static function dumpProgram(param1:String, param2:Block, param3:Array) : void
       {
          var _loc5_:FunctionDef = null;
-         trace(param1);
          var _loc4_:Object = {};
          for each(_loc5_ in param3)
          {
@@ -73,13 +72,13 @@ package r1.deval.parser
          }
       }
       
-      public function addStmt(param1:*, param2:int) : void
+      public function addStmt(param1:*, param2:int ) : void
       {
          if(curBlock.lastIsExit)
          {
             reportError("msg.unreachable.code","K51");
          }
-         curBlock.addStmt(param1,param2);
+         curBlock.addStmt(param1,param2,ts);
       }
       
       protected function statementAsBlock(param1:String = null, param2:Boolean = false) : Array
@@ -410,7 +409,7 @@ package r1.deval.parser
          var increment:Block = param7;
          var nextBlock:Block = new Block();
          var forInLoopId:int = forInCount++;
-         var fip:ForInPrologue = new ForInPrologue(forInLoopId,iterVar,coll,isForEach,lineno);
+         var fip:ForInPrologue = new ForInPrologue(forInLoopId,iterVar,coll,isForEach,lineno,ts);
          addStmt(fip,lineno);
          var tempBlock:Block = new Block();
          curBlock.trueNext = tempBlock;
@@ -738,7 +737,7 @@ package r1.deval.parser
          {
             reportError("msg.bad.namespace","K59");
          }
-         addStmt(new UnaryStmt(DEFAULT_NS,expression(),param1),param1);
+         addStmt(new UnaryStmt(DEFAULT_NS,expression(),param1,ts),param1);
       }
       
       private function statement(param1:Label = null, param2:Boolean = false) : void
@@ -805,7 +804,7 @@ package r1.deval.parser
             case THROW:
                consumeToken();
                curBlock.lastIsExit = true;
-               addStmt(new UnaryStmt(THROW,expression(),_loc7_),_loc7_);
+               addStmt(new UnaryStmt(THROW,expression(),_loc7_,ts),_loc7_);
                break;
             case WHILE:
                consumeToken();
@@ -946,7 +945,7 @@ package r1.deval.parser
                case RC:
                   addr113:
                   _loc2_.push(_loc3_);
-                  addStmt(new ImportStmt(_loc2_,param1),param1);
+                  addStmt(new ImportStmt(_loc2_,param1,ts),param1);
                   return;
                default:
                   break loop0;
@@ -957,7 +956,7 @@ package r1.deval.parser
             reportError("msg.no.semi.stmt","K66");
          }
          _loc2_.push(_loc3_);
-         addStmt(new ImportStmt(_loc2_,param1),param1);
+         addStmt(new ImportStmt(_loc2_,param1,ts),param1);
          return;
       }
       

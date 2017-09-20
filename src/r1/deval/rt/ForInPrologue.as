@@ -1,5 +1,7 @@
 package r1.deval.rt
 {
+	import r1.deval.parser.TokenStream;
+
    public class ForInPrologue extends EmptyStmt
    {
        
@@ -14,9 +16,9 @@ package r1.deval.rt
       
       var _collection:IExpr;
       
-      public function ForInPrologue(param1:int, param2:String, param3:IExpr, param4:Boolean, param5:int)
+      public function ForInPrologue(param1:int, param2:String, param3:IExpr, param4:Boolean, param5:int, param6:TokenStream)
       {
-         super(param5);
+         super(param5,param6);
          this._iterVar = param2;
          this._collection = param3;
          this._forEach = param4;

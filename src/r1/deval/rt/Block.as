@@ -1,6 +1,7 @@
 package r1.deval.rt
 {
    import r1.deval.parser.BaseParser;
+   import r1.deval.parser.TokenStream;
    import flash.utils.getQualifiedClassName;
    
    public class Block
@@ -91,7 +92,7 @@ package r1.deval.rt
          return _loc5_ + _loc4_ + "  " + condInfo() + _loc4_ + "</Block>";
       }
       
-      public function addStmt(param1:Object, param2:int = 0) : void
+      public function addStmt(param1:Object, param2:int, param3:TokenStream) : void
       {
          if(stmts == null)
          {
@@ -101,7 +102,7 @@ package r1.deval.rt
          {
             if(param1 is IExpr)
             {
-               param1 = new ExprStmt(param1 as IExpr,param2);
+               param1 = new ExprStmt(param1 as IExpr,param2,param3);
             }
          }
          stmts.push(param1);
@@ -194,7 +195,7 @@ package r1.deval.rt
                {
                   if(e is RTError)
                   {
-                     (e as RTError).lineno = s.lineno;
+                     (e as RTError).pushline(s.line,s.lineno);
                   }
                   throw e;
                }

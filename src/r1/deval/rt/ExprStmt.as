@@ -1,14 +1,16 @@
 package r1.deval.rt
 {
+	import r1.deval.parser.TokenStream;
+
    public class ExprStmt extends EmptyStmt
    {
        
       
       var _expr:IExpr;
       
-      public function ExprStmt(param1:IExpr, param2:int)
+      public function ExprStmt(param1:IExpr, param2:int, param3:TokenStream)
       {
-         super(param2);
+         super(param2,param3);
          this._expr = param1;
       }
       

@@ -7,5 +7,7 @@ package r1.deval.rt
       function exec() : void;
       
       function get lineno() : int;
+	  
+	  function get line() : String;
    }
 }

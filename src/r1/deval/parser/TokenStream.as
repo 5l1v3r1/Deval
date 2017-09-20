@@ -3,7 +3,7 @@ package r1.deval.parser
    import r1.deval.rt.Env;
    import r1.deval.util.StringBuffer;
    
-   class TokenStream extends ParserConsts
+   public class TokenStream extends ParserConsts
    {
        
       
@@ -18,6 +18,8 @@ package r1.deval.parser
       private var stringBuffer:StringBuffer;
       
       private var lineno:int;
+
+      private var linenostart:int;
       
       private var lineEndChar:int = -1;
       
@@ -42,16 +44,20 @@ package r1.deval.parser
       private var xmlOpenTagsCount:int;
       
       private var xmlIsAttribute:Boolean;
+
+      private var lines:Array;
       
-      function TokenStream(param1:String, param2:int = 1)
+      public function TokenStream(param1:String, param2:int = 1)
       {
          super();
          this.lineno = param2;
+         this.linenostart=param2;
          this.stringBuffer = new StringBuffer();
          this.ungetBuffer = new Array(3);
          this.sourceString = param1;
          this.sourceEnd = param1.length;
          this.sourceCursor = 0;
+         this.lines=new Array();
       }
       
       private static function isDigit(param1:int) : Boolean
@@ -551,6 +557,11 @@ package r1.deval.parser
          return lineno;
       }
       
+      public final function getLineFromNo(x:int):String {
+         var v:int=x-linenostart;
+         if (lines.length>v) return lines[v];
+         return sourceString.substring(lineStart,sourceCursor);
+      }
       public function getNextXMLToken() : int
       {
          stringBuffer.clear();
@@ -1337,7 +1348,7 @@ package r1.deval.parser
                   continue;
                }
                lineEndChar = -1;
-               lineStart = sourceCursor - 1;
+               lines.push(sourceString.substring(lineStart,lineStart=sourceCursor-1));
                lineno++;
             }
             if(_loc1_ <= 127)

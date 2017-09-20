@@ -1,6 +1,7 @@
 package r1.deval.rt
 {
    import r1.deval.parser.ParserConsts;
+   import r1.deval.parser.TokenStream;
    
    public class ExprFactory extends ParserConsts
    {
@@ -78,9 +79,9 @@ package r1.deval.rt
          return new UnaryExpr(param1,param2);
       }
       
-      public function createAssignment(param1:ISettable, param2:IExpr, param3:int, param4:int) : IExpr
+      public function createAssignment(param1:ISettable, param2:IExpr, param3:int, param4:int, param5:TokenStream) : IExpr
       {
-         return new Assignment(param1,param2,param3,param4);
+         return new Assignment(param1,param2,param3,param4,param5);
       }
       
       public function createDotQuery(param1:IExpr, param2:IExpr) : IExpr
