@@ -26,6 +26,7 @@ package r1.deval.rt
       }
       
       public function pushline(line:String,lineno:int):void {
+         if (linenos.length>0&&linenos[linenos.length-1]==lineno) return;
          this.lines.push(line);
          this.linenos.push(lineno);
       }

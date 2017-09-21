@@ -30,6 +30,16 @@ package r1.deval.rt
       
       private var _lastIsExit:Boolean = false;
       
+      private var isTryBlock:Boolean=false;
+
+      private var catchBlock:Block=null;
+
+      private var catchVar:String;
+
+      private var isLocalCatchVar:Boolean;
+
+      private var finallyBlock:Block=null;
+
       public function Block(param1:String = null, param2:Boolean = true)
       {
          super();
@@ -53,9 +63,20 @@ package r1.deval.rt
       
       public function isSimple() : Boolean
       {
-         return _cond == null;
+         return (_cond == null)&&!isTryBlock;
       }
       
+      public function setTryBlock():void {
+         isTryBlock=true;
+      }
+      public function setCatchBlock(err:String,bl:Block,isvar:Boolean):void {
+         catchBlock=bl;
+         catchVar=err;
+         isLocalCatchVar=isvar;
+      }
+      public function setFinallyBlock(bl:Block):void {
+         finallyBlock=bl;
+      }
       public function info(param1:int = 0) : String
       {
          var _loc6_:IStmt = null;
@@ -164,15 +185,19 @@ package r1.deval.rt
          }
          var _loc2_:Block = this;
          var _loc3_:Number = 0;
+         Env.pushObject({});
          while(_loc2_ != null && _loc2_ != param1)
          {
-            _loc2_ = _loc2_.exec();
+            if (_loc3_==0) _loc2_=_loc2_.exec();
+            else _loc2_ = _loc2_.exec();
             if(_loc3_ > Env.INFINITE_LOOP_LIMIT)
             {
+               Env.popObject();
                throw new RTError("msg.rt.infinite.loop");
             }
             _loc3_++;
          }
+         Env.popObject();
       }
       
       public function get lastIsExit() : Boolean
@@ -183,7 +208,6 @@ package r1.deval.rt
       public function exec() : Block
       {
          var s:IStmt = null;
-         Env.pushObject({});
          if(stmts != null)
          {
             for each(s in stmts)
@@ -198,12 +222,26 @@ package r1.deval.rt
                   {
                      (e as RTError).pushline(s.line,s.lineno);
                   }
-                  Env.popObject();
+                  if (isTryBlock) {
+                     var l:Object;
+                     if (catchBlock!=null) {
+                        if (isLocalCatchVar) {
+                           Env.setNewProperty(catchVar,e);
+                        }
+                        else {
+                           Env.setProperty(catchVar,e);
+                        }
+                        catchBlock.exec();
+                        l=Env.getReturnValue();
+                     }
+                     if (finallyBlock!=null) finallyBlock.exec();
+                     if (l!==undefined) Env.setReturnValue(l);
+                     break;
+                  }
                   throw e;
                }
             }
          }
-         Env.popObject();
          if(_cond == null || _cond.getBoolean())
          {
             return _trueNext;
@@ -325,7 +363,7 @@ package r1.deval.rt
             else if(isSimple())
             {
                _loc1_ = _trueNext as Block;
-               if(_loc1_.getRefCount() == 1 && _loc1_.isSimple())
+               if(_loc1_.getRefCount() == 1 && _loc1_.isSimple() )
                {
                   if(stmts == null)
                   {
@@ -350,7 +388,7 @@ package r1.deval.rt
                falseNext = _falseNext.trueNext;
             }
          }
-         if(isEmpty())
+         if(isEmpty()&&(!(trueNext!=null&&trueNext.isTryBlock)))
          {
             for each(_loc3_ in _trueReferencers)
             {

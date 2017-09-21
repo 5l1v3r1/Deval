@@ -577,6 +577,53 @@ package r1.deval.parser
          return [_loc2_,functionList];
       }
       
+      private function tryStatement(param1:int): void {
+         var u:Array=statementAsBlock(":try-part:");
+         u[0].setTryBlock();
+         curBlock.trueNext=u[0] as Block;
+         var v:String;
+         var m:Boolean=false,ok:Boolean=false;
+         if (matchToken(CATCH)) {
+            ok=true;
+            consumeToken();
+            if (peekToken()==VAR) {
+               m=true;
+               consumeToken();
+            }
+            checkAndConsumeToken(LP,"msg.no.paren.in.catch","K02");
+            v=checkAndConsumeToken(NAME,"msg.no.name.in.catch","K03");
+            while(true) {
+               switch(peekToken()) {
+                  case DOT:
+                  case COLON:
+                  case NAME:
+                     consumeToken();
+                     continue;
+                  case RP:
+                     consumeToken();
+                     break;
+                  default:
+                     reportError("msg.no.paren.in.catch","K04");
+               }
+               break;
+            }
+            var p:Array=statementAsBlock(":catch-part:");
+            u[0].setCatchBlock(v,p[0],m);
+         }
+         if (matchToken(FINALLY)) {
+            ok=true;
+            consumeToken();
+            var l:Array=statementAsBlock(":finally-part:");
+            u[0].setFinallyBlock(l[0]);
+         }
+         if (!ok) {
+            reportError("msg.no.finally.statement","K05");
+         }
+         var ij:Block=new Block();
+         u[1].trueNext=ij;
+         popBlock();
+         newBlock(ij);
+      }
       private function ifStatement(param1:int, param2:IExpr) : void
       {
          curBlock.setCond(param2,param1);
@@ -888,9 +935,12 @@ package r1.deval.parser
                reportError("msg.class.not.supported","K64");
                break;
             case TRY:
+               consumeToken();
+               tryStatement(_loc7_);
+               return;
             case CATCH:
             case FINALLY:
-               reportError("msg.reserved.id","K54",getIgnoredKeyword(_loc8_));
+               reportError("msg.no.try.statement","K01");
                break;
             default:
                addStmt(expression(),ts.getLineno());
