@@ -969,6 +969,7 @@ package r1.deval.parser
       {
          var _loc3_:String = null;
          var _loc4_:int = 0;
+         var _loc5_:int;
          var _loc2_:Array = [];
          loop0:
          while(true)
@@ -994,6 +995,14 @@ package r1.deval.parser
                   _loc2_.push(_loc3_);
                   _loc3_ = null;
                   consumeToken();
+                  continue;
+               case MUL:
+                  if (!_loc3_) reportError("msg.invalid.import.stmt","K00");
+                  _loc3_+=".*";
+                  consumeToken();
+                  _loc5_=peekFlaggedToken();
+                  _loc5_=_loc5_&CLEAR_TI_MASK;
+                  if (_loc5_!=SEMI&&_loc5_!=COMMA&&_loc5_!=ERROR&&_loc5_!=EOF&&_loc5_!=RC) reportError("msg.invalid.import.stmt","K00");
                   continue;
                case SEMI:
                   consumeToken();

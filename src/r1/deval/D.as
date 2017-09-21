@@ -133,7 +133,16 @@ package r1.deval
             }
             param1 = param1[0];
          }
-         return Env.run(param1 as Block,param3,param2);
+         try{
+            return Env.run(param1 as Block,param3,param2);
+         }
+         catch(e:Error) {
+            throw e;
+         }
+         finally {
+            Env.cleanUp();
+         }
+		 return null;
       }
       
       public static function importFunction(param1:String, param2:Function) : void

@@ -188,8 +188,7 @@ package r1.deval.rt
          Env.pushObject({});
          while(_loc2_ != null && _loc2_ != param1)
          {
-            if (_loc3_==0) _loc2_=_loc2_.exec();
-            else _loc2_ = _loc2_.exec();
+            _loc2_=_loc2_.exec();
             if(_loc3_ > Env.INFINITE_LOOP_LIMIT)
             {
                Env.popObject();

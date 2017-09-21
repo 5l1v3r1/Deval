@@ -1,6 +1,7 @@
 package r1.deval.rt
 {
    import flash.utils.describeType;
+   import flash.system.ApplicationDomain;
    import r1.deval.D;
    
    public class Env
@@ -46,6 +47,8 @@ package r1.deval.rt
          "Class":Class
       };
       
+      private static var globalVars:Object = new Object();
+      private static var globalDyns:Array = new Array();
       public static var INFINITE_LOOP_LIMIT:Number = 100000;
       
       private static const __errors:Object = {
@@ -149,15 +152,24 @@ package r1.deval.rt
          {
             thisObject_setters = thisObject_getters;
          }
+         this.scopeChain.push(globalVars);
          this.scopeChain.push(_global);
       }
       
       public static function getClass(param1:String) : Class
       {
-         var _loc2_:* = _global[param1];
+         var _loc2_:* = globalVars[param1];
+         if (_loc2_==null) {
+            _loc2_=_global[param1];
+         }
          if(_loc2_ == null)
          {
-            return null;
+            try{
+               return (getProperty(param1) as Class);
+            }
+            catch(e:Error){
+               return null;
+            }
          }
          if(_loc2_ is Class)
          {
@@ -264,6 +276,10 @@ package r1.deval.rt
          var r:Array=param1.split(/\./g);
          importGlobal(r[r.length-1],param2);
       }
+
+      public static function importStar(param1:String):void {
+         if (globalDyns.indexOf(param1)==-1) globalDyns.push(param1);
+      }
       
       public static function setReturnValue(param1:Object) : void
       {
@@ -300,7 +316,7 @@ package r1.deval.rt
                }
             }
          }
-         _global[param1] = param2;
+         globalVars[param1] = param2;
       }
       
       public static function getReturnValue() : Object
@@ -357,6 +373,10 @@ package r1.deval.rt
          return _curEnv.scopeChain[0];
       }
       
+      public static function cleanUp():void {
+         globalVars=new Object();
+         globalDyns=new Array();
+      }
       public static function importStaticMethods(param1:Class, param2:* = null) : void
       {
          var _loc4_:XML = null;
@@ -416,6 +436,21 @@ package r1.deval.rt
          if(thisObject != null && thisObject_getters[param1])
          {
             return thisObject[param1];
+         }
+         var ad:ApplicationDomain = ApplicationDomain.currentDomain;
+         var x:*;
+         for (var j:int=0;j<globalDyns.length;j++) {
+            x=ad.getDefinition(globalDyns[j]+"."+param1);
+            if (x!=null) {
+               if (x is Class) {
+                  importClass(x as Class,param1);
+                  return globalVars[param1];
+               }
+               else if (x is Function) {
+                  importFunction(param1,x as Function);
+                  return globalVars[param1];
+               }
+            }
          }
          return null;
       }

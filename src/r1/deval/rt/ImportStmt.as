@@ -21,10 +21,17 @@ package r1.deval.rt
          var cls:String = null;
          var x:* = undefined;
          var ad:ApplicationDomain = ApplicationDomain.currentDomain;
+         var p:Array;
          for each(cls in classes)
          {
             try
             {
+               p=cls.split(/\./g);
+               if (p[p.length-1]=="*") {
+                  p.pop();
+                  Env.importStar(p.join("."));
+                  continue;
+               }
                x = ad.getDefinition(cls);
                if(x != null)
                {
