@@ -177,7 +177,7 @@ package r1.deval.rt
       }
       public function createSnapshot():Env {
          var v:Env=new Env(null,null,true);
-         v.initiateObjects(thisObject,thisObject_getters,thisObject_setters,scopeChain,context);
+         v.initiateObjects(scopeChain[scopeChain.length-1],thisObject_getters,thisObject_setters,scopeChain,context);
          return v;
       }
       public static function getClass(param1:String) : Class
