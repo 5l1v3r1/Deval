@@ -319,11 +319,13 @@ package r1.deval.parser
          }
          consumeToken();
          var _loc5_:Block = newBlock();
+         var v:EndBlock=functionExitBlock;
          var _loc6_:EndBlock = functionExitBlock = new EndBlock("[/" + _loc2_ + "]");
          while(functionExitBlock != null)
          {
             statement();
          }
+         functionExitBlock=v;
          var _loc7_:Block = popBlockTo(_loc5_);
          if(_loc7_.getRefCount() > 0)
          {

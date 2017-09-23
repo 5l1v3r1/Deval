@@ -8,3 +8,4 @@
 * Added support for `...rest` parameter in function definition
 * Added support for try...catch...finally statements
 * Added the option to use import statements like `import flash.net.*;`
+* Changed FunctionDef objects to functions, i.e. any function defined in the code will point to a Function object at runtime, not a FunctionDef object

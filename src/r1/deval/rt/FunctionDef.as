@@ -16,6 +16,8 @@ package r1.deval.rt
 
       private var snp:Env;
       
+      private var func:Function=null;
+
       public function FunctionDef(param1:String, param2:Array, param3:Block, param4:EndBlock)
       {
          super();
@@ -47,6 +49,7 @@ package r1.deval.rt
       }
       
       public function getFunction():Function {
+         if (func!=null) return func;
          snp=Env.createSnapshot();
          var x:Function = function(...args):Object {
             Env.pushEnv(snp);
@@ -59,6 +62,7 @@ package r1.deval.rt
             }
 			   return null;
          }
+         func=x;
          return x;
       }
       public function run(param1:Array,cont:Object=null) : Object
@@ -119,7 +123,7 @@ package r1.deval.rt
       
       public function getAny() : Object
       {
-         return this;
+         return getFunction();
       }
       
       public function getNumber() : Number

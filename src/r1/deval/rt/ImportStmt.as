@@ -14,7 +14,7 @@ package r1.deval.rt
          super(param2,param3);
          this.classes = param1;
       }
-	  [Args(name,abcd)]
+
       override public function exec() : void
       {
          var cls:String = null;
