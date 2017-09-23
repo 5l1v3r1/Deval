@@ -121,6 +121,7 @@ package r1.deval
                param1 = parseProgram(_loc4_);
             }
          }
+/*
          if(param1 is Array)
          {
             if(param2 == null)
@@ -132,17 +133,8 @@ package r1.deval
                param2[_loc5_.name] = _loc5_;
             }
             param1 = param1[0];
-         }
-         try{
-            return Env.run(param1 as Block,param3,param2);
-         }
-         catch(e:Error) {
-            throw e;
-         }
-         finally {
-            Env.cleanUp();
-         }
-		 return null;
+         }*/
+         return Env.run(param1[0] as Block,param3,param2,param1[1] as Array);
       }
       
       public static function importFunction(param1:String, param2:Function) : void

@@ -3,19 +3,18 @@ package r1.deval.rt
    import flash.system.ApplicationDomain;
    
    import r1.deval.parser.TokenStream;
-   
    public class ImportStmt extends EmptyStmt
    {
        
       
       private var classes:Array;
-      
+
       public function ImportStmt(param1:Array, param2:int,param3:TokenStream)
       {
          super(param2,param3);
          this.classes = param1;
       }
-      
+	  [Args(name,abcd)]
       override public function exec() : void
       {
          var cls:String = null;

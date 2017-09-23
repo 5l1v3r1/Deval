@@ -13,6 +13,8 @@ package r1.deval.rt
       private var restParam:String=null;
       
       private var tail:EndBlock;
+
+      private var snp:Env;
       
       public function FunctionDef(param1:String, param2:Array, param3:Block, param4:EndBlock)
       {
@@ -44,7 +46,22 @@ package r1.deval.rt
          throw new RTError("msg.rt.eval.function.to.value");
       }
       
-      public function run(param1:Array) : Object
+      public function getFunction():Function {
+         snp=Env.createSnapshot();
+         var x:Function = function(...args):Object {
+            Env.pushEnv(snp);
+            try{
+               return run(args,this);
+            }
+            catch(e:Error) {throw e;}
+            finally {
+               Env.popEnv();
+            }
+			   return null;
+         }
+         return x;
+      }
+      public function run(param1:Array,cont:Object=null) : Object
       {
          var paramVals:Array = param1;
          var paramsLen:int = params == null?0:int(params.length);
@@ -53,7 +70,9 @@ package r1.deval.rt
          {
             len = paramsLen;
          }
-         var context:Object = {};
+         var context:Object;
+         if (cont!=null) context=cont;
+         else context=new Object();
          var idx:int = 0;
          while(idx < len)
          {

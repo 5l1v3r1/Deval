@@ -1,7 +1,8 @@
 package r1.deval.rt
 {
-   import flash.utils.describeType;
    import flash.system.ApplicationDomain;
+   import flash.utils.describeType;
+   
    import r1.deval.D;
    
    public class Env
@@ -49,6 +50,8 @@ package r1.deval.rt
       
       private static var globalVars:Object = new Object();
       private static var globalDyns:Array = new Array();
+      public var _globalVars:Object = globalVars;
+      public var _globalDyns:Array = globalDyns;
       public static var INFINITE_LOOP_LIMIT:Number = 100000;
       
       private static const __errors:Object = {
@@ -97,7 +100,7 @@ package r1.deval.rt
          "msg.no.paren.after.parms":"missing ) after formal parameters"
       };
       
-      private static var _curEnv:Env;
+      private static var curEnv:Env;
        
       
       private var thisObject_getters:Object;
@@ -111,13 +114,17 @@ package r1.deval.rt
       private var thisObject:Object;
       
       private var result:Object;
+
+      private var initiated:Boolean=false;
       
-      public function Env(param1:Object, param2:Object)
+      public function Env(param1:Object, param2:Object, blank:Boolean=false)
       {
          var _loc3_:XML = null;
          var _loc4_:XML = null;
          var _loc5_:String = null;
          super();
+         if (blank) return;
+         initiated=true;
          this.thisObject = param1;
          this.context = param2;
          this.scopeChain = [param2];
@@ -156,6 +163,23 @@ package r1.deval.rt
          this.scopeChain.push(_global);
       }
       
+      public function initiateObjects(thisobject:Object,thisobject_getters:Object,thisobject_setters:Object,scopechain:Array,conText:Object):void {
+         if (initiated) return;
+         initiated=true;
+         this.thisObject=thisobject;
+         this.thisObject_setters=thisobject_setters;
+         this.thisObject_getters=thisobject_getters;
+         this.scopeChain=scopechain.concat();
+         this.context=conText;
+      }
+      public static function createSnapshot():Env {
+         return _curEnv.createSnapshot();
+      }
+      public function createSnapshot():Env {
+         var v:Env=new Env(null,null,true);
+         v.initiateObjects(thisObject,thisObject_getters,thisObject_setters,scopeChain,context);
+         return v;
+      }
       public static function getClass(param1:String) : Class
       {
          var _loc2_:* = globalVars[param1];
@@ -207,7 +231,7 @@ package r1.deval.rt
          outputFunction(param1);
       }
       
-      public static function run(param1:Block, param2:Object = null, param3:Object = null) : Object
+      public static function run(param1:Block, param2:Object = null, param3:Object = null, funcList:Array=null) : Object
       {
          var prgm:Block = param1;
          var thisObj:Object = param2;
@@ -218,6 +242,9 @@ package r1.deval.rt
             try
             {
                pushEnv(env);
+               if (funcList!=null) {
+                  for each(var p:FunctionDef in funcList) Env.setProperty(p.name,p.getFunction());
+               }
                prgm.run();
                return env.returnValue;
             }
@@ -258,7 +285,7 @@ package r1.deval.rt
          display(getMessageAsIs.apply(null,rest));
       }
       
-      private static function popEnv() : void
+      public static function popEnv() : void
       {
          stack.pop();
          if(stack.length > 0)
@@ -348,11 +375,25 @@ package r1.deval.rt
          return _loc2_ == null?param1:_loc2_;
       }
       
-      private static function pushEnv(param1:Env) : void
+      public static function pushEnv(param1:Env) : void
       {
          stack.push(_curEnv = param1);
       }
       
+      private static function get _curEnv():Env {
+         return curEnv;
+      }
+      private static function set _curEnv(x:Env):void {
+         if (x==null) {
+            globalDyns=new Array();
+            globalVars=new Object();
+            curEnv=null;
+            return;
+         }
+         globalVars=x._globalVars;
+         globalDyns=x._globalDyns;
+         curEnv=x;
+      }
       public static function reportError(... rest) : void
       {
          outputFunction("[D:error] " + getMessage.apply(null,rest));
@@ -373,10 +414,6 @@ package r1.deval.rt
          return _curEnv.scopeChain[0];
       }
       
-      public static function cleanUp():void {
-         globalVars=new Object();
-         globalDyns=new Array();
-      }
       public static function importStaticMethods(param1:Class, param2:* = null) : void
       {
          var _loc4_:XML = null;

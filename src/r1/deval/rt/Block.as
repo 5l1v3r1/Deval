@@ -185,18 +185,15 @@ package r1.deval.rt
          }
          var _loc2_:Block = this;
          var _loc3_:Number = 0;
-         Env.pushObject({});
          while(_loc2_ != null && _loc2_ != param1)
          {
             _loc2_=_loc2_.exec();
             if(_loc3_ > Env.INFINITE_LOOP_LIMIT)
             {
-               Env.popObject();
                throw new RTError("msg.rt.infinite.loop");
             }
             _loc3_++;
          }
-         Env.popObject();
       }
       
       public function get lastIsExit() : Boolean
@@ -230,10 +227,10 @@ package r1.deval.rt
                         else {
                            Env.setProperty(catchVar,e);
                         }
-                        catchBlock.exec();
+                        catchBlock.run();
                         l=Env.getReturnValue();
                      }
-                     if (finallyBlock!=null) finallyBlock.exec();
+                     if (finallyBlock!=null) finallyBlock.run();
                      if (l!==undefined) Env.setReturnValue(l);
                      break;
                   }
@@ -344,6 +341,7 @@ package r1.deval.rt
       
       public function optimize() : void
       {
+         return;
          var _loc1_:Block = null;
          var _loc2_:Object = null;
          var _loc3_:Block = null;

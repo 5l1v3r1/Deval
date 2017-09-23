@@ -134,10 +134,6 @@ package r1.deval.rt
                }
                return _loc3_[0] as (_loc1_ as Class);
             }
-            if(_loc1_ is FunctionDef)
-            {
-               return (_loc1_ as FunctionDef).run(_loc3_);
-            }
          }
          throw new RTError("msg.rt.no.function");
       }
