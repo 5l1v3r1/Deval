@@ -92,7 +92,7 @@ package r1.deval
 	    }
 	    program = program[0];
 	  }	*/
-	  return Env.run(program[0] as Block, thisObj, context, program[1] as Array);
+	  return Env.run((program is Array)?(program[0] as Block):program, thisObj, context, (program is Array)?(program[1] as Array):null);
 	}
 
 	public static function importFunction(name:String, f:Function):void { Env.importFunction(name, f); }
