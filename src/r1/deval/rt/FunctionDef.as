@@ -66,7 +66,10 @@ package r1.deval.rt
             try{
                return run(args,null);
             }
-            catch(e:Error) {throw e;}
+            catch(e:Error) {
+               if (this!=THISOBJECT) RTErrorHandler.dispatch(e);
+               throw e;
+            }
             finally {
                if (!fixthisobj) Env.setThis(null);
                Env.popEnv();
