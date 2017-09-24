@@ -18,7 +18,7 @@ package r1.deval.rt
       
       private var func:Function=null;
 
-      public static const THISOBJECT:Object=new Object();
+      public static const THISOBJECT:Object=new Dummy();
 
       public function FunctionDef(param1:String, param2:Array, param3:Block, param4:EndBlock)
       {
