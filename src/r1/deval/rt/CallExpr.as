@@ -18,7 +18,7 @@ package r1.deval.rt
          this.newOp = param1;
       }
       
-      private static function newInstance(param1:Class, param2:Array) : Object
+      private static function newInstance(param1:*, param2:Array) : Object
       {
          switch(param2.length)
          {
@@ -96,11 +96,11 @@ package r1.deval.rt
             {
                throw new RTError("msg.rt.no.class");
             }
-            if(!(_loc1_ is Class))
+            if(!(_loc1_ is Class)&&!(_loc1_ is Function))
             {
                throw new RTError("msg.rt.not.class");
             }
-            return newInstance(_loc1_ as Class,_loc3_);
+            return newInstance(_loc1_,_loc3_);
          }
          if(expr is Accessor)
          {

@@ -26,6 +26,7 @@ package r1.deval.parser
 	private var labelStack:Array;
 	private var blockStack:Array;
    private var contextStack:Array=new Array();
+   private var todoStack:Array=new Array();
 
 	public function BaseParser()
 	{
@@ -38,12 +39,24 @@ package r1.deval.parser
          if (p.indexOf(x)!=-1) return;
       }
       if (Env.getProperty(x)!==undefined) return;
-      reportError("msg.no.var.defined","K90");
+      if (todoStack.length==0) reportError("msg.no.var.defined","K90");
+      else todoStack[todoStack.length-1][x]=1;
    }
 
    private function addNewVar(x:String):void {
       if (contextStack[contextStack.length-1].indexOf(x)!=-1) reportError("msg.multiple.var.def","K91");
       contextStack[contextStack.length-1].push(x);
+   }
+   private function addContext():void {
+   	  contextStack.push(new Array());
+   	  todoStack.push(new Object());
+   }
+   private function popContext():void {
+   	  var w:Object=todoStack.pop();
+   	  for (var s:String in w) {
+   	  	checkVarDefined(s);
+   	  }
+   	  contextStack.pop();
    }
 	private static function dumpProgram(header:String, block:Block, fxnList:Array):void
 	{
@@ -218,7 +231,7 @@ package r1.deval.parser
 	  	name = checkAndConsumeToken(NAME, "msg.missing.function.name", "Kf1");
 	  	addNewVar(name);
 	  }
-	  this.contextStack.push(new Array());
+	  this.addContext();
 	  checkAndConsumeToken(LP, "msg.no.paren.parms", "Kf2");
 	  var params:Array = new Array();
       var ml:String;
@@ -304,9 +317,10 @@ package r1.deval.parser
 		if (lastBlock.trueNext == null) lastBlock.trueNext = tail;
 		if (lastBlock.falseNext == null) lastBlock.falseNext = tail;
 	  }
-     this.contextStack.pop();
+     this.popContext();
 	  return new FunctionDef(name, params, head, tail);
 	}
+
 
 	private function checkAndConsumeToken(token:int, msgId:String, id:String):String
 	{
@@ -446,7 +460,8 @@ package r1.deval.parser
 	  switchStack = new Array();
 	  functionList = new Array();
      contextStack = new Array();
-     contextStack.push(new Array());
+     todoStack=new Array();
+     this.addContext();
 	}
 
 	private function breakContinueStatement(isBreak:Boolean):void
@@ -465,10 +480,10 @@ package r1.deval.parser
 	  }
 	}
 
-	public function parseProgram(source:String) : Object
+	public function parseProgram(source:String,context:Object=null) : Object
 	{
      try{
-         Env.pushEnv(new Env(null,null));
+         Env.pushEnv(new Env(null,context));
          initParser(source);
          newBlock(":Main:");
 	      var root:Block = curBlock;
@@ -482,6 +497,7 @@ package r1.deval.parser
 		     fd.optimize();
 	      }
 	      if (debugDump) dumpProgram("\n===== Post-optimization =====", root, functionList);
+	      this.popContext();
 	      if (functionList.length == 0) return root;
 	      return [root, functionList];
       }

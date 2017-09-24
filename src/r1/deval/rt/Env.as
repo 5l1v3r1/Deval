@@ -464,12 +464,15 @@ package r1.deval.rt
       function getProperty(param1:*) : *
       {
          var _loc2_:* = undefined;
+         var e:Error;
          for each(_loc2_ in scopeChain)
          {
-            if(_loc2_.hasOwnProperty(param1))
-            {
-               return _loc2_[param1];
+            try{
+               if(_loc2_[param1]!==undefined||_loc2_.hasOwnProperty(param1)){
+                  return _loc2_[param1];
+               }
             }
+            catch(e){}
          }
          if(thisObject != null && thisObject_getters[param1])
          {
