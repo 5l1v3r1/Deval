@@ -114,29 +114,28 @@ package r1.deval.rt
       private var thisObject:Object;
       
       private var result:Object;
-
-      private var initiated:Boolean=false;
       
-      public function Env(param1:Object, param2:Object, blank:Boolean=false)
+      public function Env(param1:Object, param2:Object)
       {
+         super();
+         this.context = param2==null?(new Object()):param2;
+         this.scopeChain = [this.context];
+         this.setThis(param1);
+         this.scopeChain.push(thisObject);
+         if (thisObject.prototype!=null) this.scopeChain.push(thisObject.prototype);
+         this.scopeChain.push(globalVars);
+         this.scopeChain.push(_global);
+      }
+      
+      public function setThis(param1:Object):void {
          var _loc3_:XML = null;
          var _loc4_:XML = null;
          var _loc5_:String = null;
-         super();
-         if (blank) return;
-         initiated=true;
-         this.thisObject = param1;
-         this.context = param2;
-         this.scopeChain = [param2];
          thisObject_setters = {};
          thisObject_getters = {};
          if(param1)
          {
-            this.scopeChain.push(param1);
-            if(param1.prototype != null)
-            {
-               this.scopeChain.push(param1.prototype);
-            }
+            thisObject=param1;
             _loc3_ = describeType(param1);
             for each(_loc4_ in _loc3_.accessor)
             {
@@ -157,27 +156,25 @@ package r1.deval.rt
          }
          else
          {
+            thisObject=new Object();
             thisObject_setters = thisObject_getters;
          }
-         this.scopeChain.push(globalVars);
-         this.scopeChain.push(_global);
       }
-      
-      public function initiateObjects(thisobject:Object,thisobject_getters:Object,thisobject_setters:Object,scopechain:Array,conText:Object):void {
-         if (initiated) return;
-         initiated=true;
-         this.thisObject=thisobject;
-         this.thisObject_setters=thisobject_setters;
-         this.thisObject_getters=thisobject_getters;
-         this.scopeChain=scopechain.concat();
-         this.context=conText;
+      public static function setThis(x:Object):void {
+         _curEnv.setThis(x);
       }
       public static function createSnapshot():Env {
          return _curEnv.createSnapshot();
       }
+      public static function getCurrentScope():Object {
+         return _curEnv.scopeChain[0];
+      }
       public function createSnapshot():Env {
-         var v:Env=new Env(null,null,true);
-         v.initiateObjects(scopeChain[scopeChain.length-1],thisObject_getters,thisObject_setters,scopeChain,context);
+         var v:Env=new Env(null,null);
+         v.scopeChain=scopeChain.concat();
+         v._globalVars=this._globalVars;
+         v._globalDyns=this._globalDyns;
+         v.context=this.context;
          return v;
       }
       public static function getClass(param1:String) : Class
@@ -237,13 +234,15 @@ package r1.deval.rt
          var thisObj:Object = param2;
          var context:Object = param3;
          var env:Env = new Env(thisObj,context != null?context:{});
+         var w:Object;
          if(prgm)
          {
             try
             {
                pushEnv(env);
+			      w=_curEnv.context;
                if (funcList!=null) {
-                  for each(var p:FunctionDef in funcList) Env.setProperty(p.name,p.getFunction());
+                  for each(var p:FunctionDef in funcList) Env.setProperty(p.name,p.getFunction(w));
                }
                prgm.run();
                return env.returnValue;
@@ -271,7 +270,7 @@ package r1.deval.rt
       {
          return _curEnv.thisObject;
       }
-      
+
       public static function setProperty(param1:*, param2:Object) : void
       {
          _curEnv.setProperty(param1,param2);

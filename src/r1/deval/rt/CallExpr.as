@@ -124,7 +124,7 @@ package r1.deval.rt
          {
             if(_loc1_ is Function)
             {
-               return (_loc1_ as Function).apply(_loc2_,_loc3_);
+               return (_loc1_ as Function).apply(_loc2_==null?FunctionDef.THISOBJECT:_loc2_,_loc3_);
             }
             if(_loc1_ is Class)
             {

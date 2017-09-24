@@ -18,6 +18,8 @@ package r1.deval.rt
       
       private var func:Function=null;
 
+      public static const THISOBJECT:Object=new Object();
+
       public function FunctionDef(param1:String, param2:Array, param3:Block, param4:EndBlock)
       {
          super();
@@ -48,16 +50,25 @@ package r1.deval.rt
          throw new RTError("msg.rt.eval.function.to.value");
       }
       
-      public function getFunction():Function {
+      public function getFunction(thisobj:Object=null):Function {
          if (func!=null) return func;
+         var fixthisobj:Object=thisobj;
          snp=Env.createSnapshot();
+         if (thisobj) snp.setThis(thisobj);
          var x:Function = function(...args):Object {
+            var v:Object;
             Env.pushEnv(snp);
+            if (!fixthisobj){
+               if (this!=THISOBJECT) v=this;
+               else v=Env.getCurrentScope();
+               Env.setThis(v);
+            }
             try{
-               return run(args,this);
+               return run(args,null);
             }
             catch(e:Error) {throw e;}
             finally {
+               if (!fixthisobj) Env.setThis(null);
                Env.popEnv();
             }
 			   return null;
