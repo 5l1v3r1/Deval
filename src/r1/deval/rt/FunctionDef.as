@@ -1,5 +1,6 @@
 package r1.deval.rt
 {
+   import r1.deval.D;
    public class FunctionDef implements IExpr
    {
        
@@ -17,8 +18,6 @@ package r1.deval.rt
       private var snp:Env;
       
       private var func:Function=null;
-
-      public static const THISOBJECT:Object=new Dummy();
 
       public function FunctionDef(param1:String, param2:Array, param3:Block, param4:EndBlock)
       {
@@ -39,7 +38,7 @@ package r1.deval.rt
             head.optimize();
          }
       }
-      
+
       public function getString() : String
       {
          throw new RTError("msg.rt.eval.function.to.value");
@@ -56,25 +55,22 @@ package r1.deval.rt
          snp=Env.createSnapshot();
          if (thisobj) snp.setThis(thisobj);
          var x:Function = function(...args):Object {
-            var v:Object;
+            var v:Object
             Env.pushEnv(snp);
-            if (!fixthisobj){
-               if (this!=THISOBJECT) v=this;
-               else v=Env.getCurrentScope();
-               Env.setThis(v);
-            }
+            if (!fixthisobj) Env.setThis(this);
+            var e:Error;
             try{
                return run(args,null);
             }
-            catch(e:Error) {
-               if (this!=THISOBJECT) RTErrorHandler.dispatch(e);
+            catch(e) {
+               RTErrorHandler.dispatch(e);
                throw e;
             }
             finally {
                if (!fixthisobj) Env.setThis(null);
                Env.popEnv();
             }
-			   return null;
+			return null;
          }
          func=x;
          return x;

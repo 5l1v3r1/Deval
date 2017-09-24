@@ -169,9 +169,6 @@ package r1.deval.rt
       public static function createSnapshot():Env {
          return _curEnv.createSnapshot();
       }
-      public static function getCurrentScope():Object {
-         return _curEnv.scopeChain[0];
-      }
       public function createSnapshot():Env {
          var v:Env=new Env(null,null);
          v.scopeChain=scopeChain.concat();
@@ -494,6 +491,8 @@ package r1.deval.rt
                }
             }
          }
+         x=ad.getDefinition(param1);
+         if (x!=null) return x;
          return undefined;
       }
       
