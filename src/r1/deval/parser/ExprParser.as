@@ -25,7 +25,7 @@ package r1.deval.parser
 	  this.exprFactory = new ExprFactory();
 	}
 
-	protected function checkVarDefined(x:String):void {}
+	protected function checkVarDefined(x:String,lineno:int=-1):void {}
 	protected function propertyName(host:IExpr, name:String, attrFlag:Boolean=false, descFlag:Boolean=false):IExpr
 	{
 	  var tt:int = 0;
@@ -443,10 +443,10 @@ package r1.deval.parser
 	  if (!(expr is ISettable)) reportError("msg.not.assignable", "K03");
 	}
 
-	public function reportError(msgId:String, id:String, p1:String=null, p2:String=null, p3:String=null):void
+	public function reportError(msgId:String, id:String, p1:String=null, p2:String=null, p3:String=null, linen:int=-1):void
 	{
-	  var v:int;
-	  throw new ParseError(Env.getMessage(msgId, p1, p2, p3), id, (v = ts.getLineno()), ts.getLineFromNo(v));
+	  var v:int=linen==-1?ts.getLineno():linen;
+	  throw new ParseError(Env.getMessage(msgId, p1, p2, p3), id, v, ts.getLineFromNo(v));
 	}
 
 	private function memberExprTail(allowCallSyntax:Boolean, expr:IExpr):IExpr

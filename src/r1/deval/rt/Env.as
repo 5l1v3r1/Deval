@@ -209,9 +209,9 @@ package r1.deval.rt
          return null;
       }
       
-      public static function getProperty(param1:*) : *
+      public static function getProperty(param1:*,checkonly:Boolean=false) : *
       {
-         return _curEnv.getProperty(param1);
+         return _curEnv.getProperty(param1,checkonly);
       }
       
       public static function isInDocQuery() : Boolean
@@ -461,22 +461,21 @@ package r1.deval.rt
          return result;
       }
       
-      function getProperty(param1:*) : *
+      function getProperty(param1:*,checkonly:Boolean=false) : *
       {
          var _loc2_:* = undefined;
          var e:Error;
          for each(_loc2_ in scopeChain)
          {
-            try{
-               if(_loc2_[param1]!==undefined||_loc2_.hasOwnProperty(param1)){
-                  return _loc2_[param1];
-               }
+            if(_loc2_.hasOwnProperty(param1)){
+               if (checkonly) return null;
+               else return _loc2_[param1];
             }
-            catch(e){}
          }
          if(thisObject != null && thisObject_getters[param1])
          {
-            return thisObject[param1];
+            if (checkonly) return null;
+            else return thisObject[param1];
          }
          var ad:ApplicationDomain = ApplicationDomain.currentDomain;
          var x:*;
@@ -485,11 +484,13 @@ package r1.deval.rt
             if (x!=null) {
                if (x is Class) {
                   importClass(x as Class,param1);
-                  return globalVars[param1];
+                  if (checkonly) return null;
+                  else return globalVars[param1];
                }
                else if (x is Function) {
                   importFunction(param1,x as Function);
-                  return globalVars[param1];
+                  if (checkonly) return null;
+                  else return globalVars[param1];
                }
             }
          }

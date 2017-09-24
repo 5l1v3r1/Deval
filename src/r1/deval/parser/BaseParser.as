@@ -34,13 +34,14 @@ package r1.deval.parser
 	  super();
 	}
 
-   override protected function checkVarDefined(x:String):void {
+   override protected function checkVarDefined(x:String,lineno:int=-1):void {
+   	  if (lineno==-1) lineno=ts.getLineno();
       for each(var p:Array in contextStack) {
          if (p.indexOf(x)!=-1) return;
       }
-      if (Env.getProperty(x)!==undefined) return;
-      if (todoStack.length==0) reportError("msg.no.var.defined","K90");
-      else todoStack[todoStack.length-1][x]=1;
+      if (Env.getProperty(x,true)!==undefined) return;
+      if (todoStack.length==0) reportError("msg.no.var.defined(var "+x+")","K90",null,null,null,lineno);
+      else todoStack[todoStack.length-1][x]=lineno;
    }
 
    private function addNewVar(x:String):void {
@@ -54,7 +55,7 @@ package r1.deval.parser
    private function popContext():void {
    	  var w:Object=todoStack.pop();
    	  for (var s:String in w) {
-   	  	checkVarDefined(s);
+   	  	checkVarDefined(s,w[s]);
    	  }
    	  contextStack.pop();
    }
@@ -480,10 +481,10 @@ package r1.deval.parser
 	  }
 	}
 
-	public function parseProgram(source:String,context:Object=null) : Object
+	public function parseProgram(source:String,thisObject:Object=null,context:Object=null) : Object
 	{
      try{
-         Env.pushEnv(new Env(null,context));
+         Env.pushEnv(new Env(thisObject,context));
          initParser(source);
          newBlock(":Main:");
 	      var root:Block = curBlock;
