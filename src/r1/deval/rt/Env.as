@@ -160,6 +160,9 @@ package r1.deval.rt
             thisObject_setters = thisObject_getters;
          }
       }
+      public static function setContext(x:Object):void {
+         _curEnv.context=x;
+      }
       public static function setThis(x:Object):void {
          _curEnv.setThis(x);
       }
@@ -174,7 +177,6 @@ package r1.deval.rt
          v.scopeChain=scopeChain.concat();
          v._globalVars=this._globalVars;
          v._globalDyns=this._globalDyns;
-         v.context=this.context;
          return v;
       }
       public static function getClass(param1:String) : Class
@@ -207,7 +209,7 @@ package r1.deval.rt
          return null;
       }
       
-      public static function getProperty(param1:*) : Object
+      public static function getProperty(param1:*) : *
       {
          return _curEnv.getProperty(param1);
       }
@@ -307,7 +309,7 @@ package r1.deval.rt
          if (globalDyns.indexOf(param1)==-1) globalDyns.push(param1);
       }
       
-      public static function setReturnValue(param1:Object) : void
+      public static function setReturnValue(param1:*) : void
       {
          _curEnv.returnValue = param1;
       }
@@ -345,7 +347,7 @@ package r1.deval.rt
          globalVars[param1] = param2;
       }
       
-      public static function getReturnValue() : Object
+      public static function getReturnValue() : *
       {
          return _curEnv.returnValue;
       }
@@ -449,17 +451,17 @@ package r1.deval.rt
          }
       }
       
-      function set returnValue(param1:Object) : void
+      function set returnValue(param1:*) : void
       {
          result = param1;
       }
       
-      function get returnValue() : Object
+      function get returnValue() : *
       {
          return result;
       }
       
-      function getProperty(param1:*) : Object
+      function getProperty(param1:*) : *
       {
          var _loc2_:* = undefined;
          for each(_loc2_ in scopeChain)
@@ -488,7 +490,7 @@ package r1.deval.rt
                }
             }
          }
-         return null;
+         return undefined;
       }
       
       function popObject() : *
@@ -497,7 +499,7 @@ package r1.deval.rt
       }
       
       function setNewProperty(param1:*,param2:*) : void {
-         scopeChain[0][param1]=param2;
+         context[param1]=param2;
       }
       function setProperty(param1:*, param2:*) : void
       {

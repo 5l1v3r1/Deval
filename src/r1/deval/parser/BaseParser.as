@@ -9,6 +9,7 @@ package r1.deval.parser
   import r1.deval.rt.IExpr;
   import r1.deval.rt.ImportStmt;
   import r1.deval.rt.UnaryStmt;
+  import r1.deval.rt.Env;
 
   public class BaseParser extends ExprParser
   {
@@ -24,6 +25,7 @@ package r1.deval.parser
 	private var anonLabelCount:int = 0;
 	private var labelStack:Array;
 	private var blockStack:Array;
+   private var contextStack:Array=new Array();
 
 	public function BaseParser()
 	{
@@ -31,6 +33,18 @@ package r1.deval.parser
 	  super();
 	}
 
+   override protected function checkVarDefined(x:String):void {
+      for each(var p:Array in contextStack) {
+         if (p.indexOf(x)!=-1) return;
+      }
+      if (Env.getProperty(x)!==undefined) return;
+      reportError("msg.no.var.defined","K90");
+   }
+
+   private function addNewVar(x:String):void {
+      if (contextStack[contextStack.length-1].indexOf(x)!=-1) reportError("msg.multiple.var.def","K91");
+      contextStack[contextStack.length-1].push(x);
+   }
 	private static function dumpProgram(header:String, block:Block, fxnList:Array):void
 	{
 	  trace(header);
@@ -120,6 +134,7 @@ package r1.deval.parser
 		  if (peekToken() == IN)
 		  {
 			consumeToken();
+         addNewVar(iterVar);
 			exprFactory.createVarExpr(iterVar);
 		  }
 		  else
@@ -199,9 +214,14 @@ package r1.deval.parser
 	{
 	  var name:String = null;
 	  var tt:int = 0;
-	  if (!isAnon) name = checkAndConsumeToken(NAME, "msg.missing.function.name", "Kf1");
+	  if (!isAnon) {
+	  	name = checkAndConsumeToken(NAME, "msg.missing.function.name", "Kf1");
+	  	addNewVar(name);
+	  }
+	  this.contextStack.push(new Array());
 	  checkAndConsumeToken(LP, "msg.no.paren.parms", "Kf2");
 	  var params:Array = new Array();
+      var ml:String;
 	  loop0:
 	  while (true)
 	  {
@@ -212,7 +232,9 @@ package r1.deval.parser
 		}
 		else if (tt == NAME)
 		{
-		  params.push(ts.getString());
+        ml=ts.getString();
+        addNewVar(ml);
+		  params.push(ml);
 		  consumeToken();
 		  var ttt:int = peekToken();
 		  while (true)
@@ -282,6 +304,7 @@ package r1.deval.parser
 		if (lastBlock.trueNext == null) lastBlock.trueNext = tail;
 		if (lastBlock.falseNext == null) lastBlock.falseNext = tail;
 	  }
+     this.contextStack.pop();
 	  return new FunctionDef(name, params, head, tail);
 	}
 
@@ -299,6 +322,7 @@ package r1.deval.parser
 	{
 	  checkAndConsumeToken(LC, "msg.no.brace.switch", "Ksw5");
 	  var _loc4_:String = "_switch_" + switchDepth;
+     addNewVar(_loc4_);
 	  addStmt(exprFactory.createVarExpr(_loc4_, cond), 0);
 	  var branch:Block = curBlock;
 	  branch.trueNext = newBlock();
@@ -306,6 +330,7 @@ package r1.deval.parser
 	  stmtLabel.isSwitch = true;
 	  stmtLabel.block = new Block();
 	  pushLabel(stmtLabel);
+     checkVarDefined(_loc4_);
 	  var switchInfo:Object = {"switchVar":exprFactory.createAccessor(null, _loc4_), "type":0, "branchHead":curBlock, "branchCondition":branch, "label":stmtLabel};
 	  var depth:int = switchDepth;
 	  switchStack.push(switchInfo);
@@ -420,6 +445,8 @@ package r1.deval.parser
 	  labelStack = new Array();
 	  switchStack = new Array();
 	  functionList = new Array();
+     contextStack = new Array();
+     contextStack.push(new Array());
 	}
 
 	private function breakContinueStatement(isBreak:Boolean):void
@@ -440,21 +467,28 @@ package r1.deval.parser
 
 	public function parseProgram(source:String) : Object
 	{
-	  initParser(source);
-	  newBlock(":Main:");
-	  var root:Block = curBlock;
-	  while (peekToken() != EOF) statement();
-	  if (curBlock.trueNext == null) curBlock.trueNext = EndBlock.EXIT;
-	  popBlock();
-	  if(debugDump) dumpProgram("===== Pre-optimization =====", root, functionList);
-	  root.optimize();
-	  for each (var fd:FunctionDef in functionList)
-	  {
-		fd.optimize();
-	  }
-	  if (debugDump) dumpProgram("\n===== Post-optimization =====", root, functionList);
-	  if (functionList.length == 0) return root;
-	  return [root, functionList];
+     try{
+         Env.pushEnv(new Env(null,null));
+         initParser(source);
+         newBlock(":Main:");
+	      var root:Block = curBlock;
+	      while (peekToken() != EOF) statement();
+	      if (curBlock.trueNext == null) curBlock.trueNext = EndBlock.EXIT;
+	      popBlock();
+	      if(debugDump) dumpProgram("===== Pre-optimization =====", root, functionList);
+	      root.optimize();
+	      for each (var fd:FunctionDef in functionList)
+	      {
+		     fd.optimize();
+	      }
+	      if (debugDump) dumpProgram("\n===== Post-optimization =====", root, functionList);
+	      if (functionList.length == 0) return root;
+	      return [root, functionList];
+      }
+      finally{
+         Env.popEnv();
+      }
+	  return null;
 	}
 
 	private function tryStatement(arg:int):void
@@ -789,6 +823,7 @@ package r1.deval.parser
 	  var ttFlagged:int = 0;
 	  var ttFlagged2:int;
 	  var names:Array = new Array();
+     var p:ImportStmt;
 	  loop0:
 	  while (true)
 	  {
@@ -823,7 +858,9 @@ package r1.deval.parser
 		  case RC:
 			addr113:
 			names.push(curName);
-			addStmt(new ImportStmt(names, lineno, ts), lineno);
+         p=new ImportStmt(names, lineno, ts);
+         p.exec();
+			addStmt(p,lineno);
 			return;
 		  default:
 			break loop0;
@@ -831,7 +868,9 @@ package r1.deval.parser
 	  }
 	  if ((ttFlagged & TI_AFTER_EOL) == 0) reportError("msg.no.semi.stmt", "K66");
 	  names.push(curName);
-	  addStmt(new ImportStmt(names, lineno, ts), lineno);
+     p=new ImportStmt(names, lineno, ts);
+     p.exec();
+	  addStmt(p, lineno);
 	  return;
 	}
 
@@ -867,6 +906,7 @@ package r1.deval.parser
 		}
 		init = null;
 		if (matchToken(ASSIGN)) init = assignExpr();
+      addNewVar(name);
 		list = exprFactory.createVarExpr(name, init, list);
 	  }
 	  while (matchToken(COMMA));

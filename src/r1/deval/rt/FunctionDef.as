@@ -102,6 +102,7 @@ package r1.deval.rt
          try
          {
             Env.pushObject(context);
+            Env.setContext(context);
             Env.setReturnValue(null);
             head.run(tail);
             return Env.getReturnValue();
@@ -109,6 +110,7 @@ package r1.deval.rt
          finally
          {
             Env.popObject();
+            Env.setContext(null);
          }
          return null;
       }

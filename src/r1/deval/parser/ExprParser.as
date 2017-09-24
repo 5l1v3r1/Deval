@@ -25,12 +25,14 @@ package r1.deval.parser
 	  this.exprFactory = new ExprFactory();
 	}
 
+	protected function checkVarDefined(x:String):void {}
 	protected function propertyName(host:IExpr, name:String, attrFlag:Boolean=false, descFlag:Boolean=false):IExpr
 	{
 	  var tt:int = 0;
 	  var ns:IExpr = null;
 	  if(matchToken(COLONCOLON))
 	  {
+        checkVarDefined(name);
 		ns = exprFactory.createAccessor(null, name);
 		tt = nextToken();
 		switch(tt)
@@ -50,6 +52,7 @@ package r1.deval.parser
 			name = "?";
 		}
 	  }
+     if (host==null) checkVarDefined(name);
 	  return exprFactory.createAccessor(host, name, ns, attrFlag, descFlag);
 	}
 
