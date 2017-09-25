@@ -511,40 +511,35 @@ package r1.deval.parser
 	private function tryStatement(arg:int):void
 	{
 	  var u:Array = statementAsBlock(":try-part:");
-	  u[0].setTryBlock();
 	  curBlock.trueNext = u[0] as Block;
 	  var v:String;
-	  var m:Boolean = false, ok:Boolean = false;
-	  if (matchToken(CATCH))
+	  var ok:Boolean = false;
+	  var pl:IExpr;
+	  while (matchToken(CATCH))
 	  {
 		ok = true;
 		consumeToken();
-		if (peekToken() == VAR)
-		{
-		  m = true;
-		  consumeToken();
-		}
 		checkAndConsumeToken(LP, "msg.no.paren.in.catch", "K02");
 		v = checkAndConsumeToken(NAME, "msg.no.name.in.catch", "K03");
-		while (true)
+		pl=null;
+		switch(peekToken())
 		{
-		  switch(peekToken())
-		  {
-			case DOT:
-			case COLON:
-			case NAME:
-			  consumeToken();
-			  continue;
-			case RP:
-			  consumeToken();
-			  break;
-			default:
-			  reportError("msg.no.paren.in.catch", "K04");
-		  }
-		  break;
+		  case COLON:
+		    consumeToken();
+		    pl=expression();
+		    checkAndConsumeToken(RP,"msg.no.right.paren","K99")
+		    break;
+		  case RP:
+		    consumeToken();
+		    break;
+		  default:
+			reportError("msg.no.paren.in.catch", "K04");
 		}
+		addContext();
+		addNewVar(v);
 		var p:Array = statementAsBlock(":catch-part:");
-		u[0].setCatchBlock(v, p[0], m);
+		popContext();
+		u[0].addCatchBlock(v, pl, p[0]);
 	  }
 	  if (matchToken(FINALLY))
 	  {
@@ -727,8 +722,8 @@ package r1.deval.parser
 		  break;
 		case THROW:
 		  consumeToken();
-		  curBlock.lastIsExit = true;
 		  addStmt(new UnaryStmt(THROW, expression(), lineno, ts), lineno);
+		  curBlock.lastIsExit = true;
 		  break;
 		case WHILE:
 		  consumeToken();
@@ -869,14 +864,13 @@ package r1.deval.parser
 			if (ttFlagged2 != SEMI && ttFlagged2 != COMMA && ttFlagged2 != ERROR && ttFlagged2 != EOF && ttFlagged2 != RC) reportError("msg.invalid.import.stmt", "K00");
 			continue;
 		  case SEMI:
-			consumeToken();
 		  case ERROR:
 		  case EOF:
 		  case RC:
 			addr113:
 			names.push(curName);
-         p=new ImportStmt(names, lineno, ts);
-         p.exec();
+            p=new ImportStmt(names, lineno, ts);
+            p.exec();
 			addStmt(p,lineno);
 			return;
 		  default:

@@ -98,7 +98,7 @@ package r1.deval.rt
             }
             if(!(_loc1_ is Class)&&!(_loc1_ is Function))
             {
-               throw new RTError("msg.rt.not.class");
+               throw new RTError("msg.rt.not.callable");
             }
             return newInstance(_loc1_,_loc3_);
          }

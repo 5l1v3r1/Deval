@@ -32,11 +32,9 @@ package r1.deval.rt
       
       private var isTryBlock:Boolean=false;
 
-      private var catchBlock:Block=null;
+      private var catchBlocks:Array=new Array();
 
       private var catchVar:String;
-
-      private var isLocalCatchVar:Boolean;
 
       private var finallyBlock:Block=null;
 
@@ -66,13 +64,9 @@ package r1.deval.rt
          return (_cond == null)&&!isTryBlock;
       }
       
-      public function setTryBlock():void {
+      public function addCatchBlock(err:String,errortype:IExpr, bl:Block):void {
          isTryBlock=true;
-      }
-      public function setCatchBlock(err:String,bl:Block,isvar:Boolean):void {
-         catchBlock=bl;
-         catchVar=err;
-         isLocalCatchVar=isvar;
+         catchBlocks.push({catchBlock:bl,catchVar:err,errortype:errortype});
       }
       public function setFinallyBlock(bl:Block):void {
          finallyBlock=bl;
@@ -219,20 +213,32 @@ package r1.deval.rt
                      (e as RTError).pushline(s.line,s.lineno);
                   }
                   if (isTryBlock) {
-                     var l:Object;
-                     if (catchBlock!=null) {
-                        if (isLocalCatchVar) {
-                           Env.setNewProperty(catchVar,e);
+                     var res:*,ok:Boolean=false;
+                     var l:Object,m:IExpr;
+                     var o:Class;
+                     var v:Object;
+                     for each(l in catchBlocks) {
+                        m=l.errortype;
+                        if (m!=null) {
+                           o=m.getAny() as Class;
+                           if (o==null||!(e is o)) continue;
                         }
-                        else {
-                           Env.setProperty(catchVar,e);
+                        v=new Object();
+                        v[l.catchVar]=e;
+                        Env.pushObject(v,true);
+                        try{
+                           l.catchBlock.run();
+                           res=Env.getReturnValue();
+                           ok=true;
+                           break;
                         }
-                        catchBlock.run();
-                        l=Env.getReturnValue();
+                        finally {Env.popObject(true);}
                      }
                      if (finallyBlock!=null) finallyBlock.run();
-                     if (l!==undefined) Env.setReturnValue(l);
-                     break;
+                     if (ok) {
+                        Env.setReturnValue(res);
+                        break;
+                     }
                   }
                   throw e;
                }

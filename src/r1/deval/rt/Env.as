@@ -52,6 +52,7 @@ package r1.deval.rt
       private static var globalDyns:Array = new Array();
       public var _globalVars:Object = globalVars;
       public var _globalDyns:Array = globalDyns;
+      private var tempObjects:Object=new Object();
       public static var INFINITE_LOOP_LIMIT:Number = 100000;
       
       private static const __errors:Object = {
@@ -119,12 +120,12 @@ package r1.deval.rt
       {
          super();
          this.context = param2==null?(new Object()):param2;
-         this.scopeChain = [this.context];
+         this.scopeChain = [[false,this.context]];
          this.setThis(param1);
-         this.scopeChain.push(thisObject);
-         if (thisObject.prototype!=null) this.scopeChain.push(thisObject.prototype);
-         this.scopeChain.push(globalVars);
-         this.scopeChain.push(_global);
+         this.scopeChain.push([false,thisObject]);
+         if (thisObject.prototype!=null) this.scopeChain.push([false,thisObject.prototype]);
+         this.scopeChain.push([false,globalVars]);
+         this.scopeChain.push([false,_global]);
       }
       
       public function setThis(param1:Object):void {
@@ -213,7 +214,7 @@ package r1.deval.rt
       
       public static function isInDocQuery() : Boolean
       {
-         var _loc1_:* = _curEnv.scopeChain[0];
+         var _loc1_:*=peekObject();
          return _loc1_ is XML || _loc1_ is XMLList;
       }
       
@@ -362,7 +363,7 @@ package r1.deval.rt
          }
       }
       
-      public static function popObject() : *
+      public static function popObject(temp:Boolean=false) : *
       {
          return _curEnv.popObject();
       }
@@ -402,14 +403,21 @@ package r1.deval.rt
          outputFunction("[D:debug] " + getMessage.apply(null,rest));
       }
       
-      public static function pushObject(param1:*) : void
+      public static function pushObject(param1:*,temp:Boolean=false) : void
       {
          _curEnv.pushObject(param1);
       }
       
       public static function peekObject() : *
       {
-         return _curEnv.scopeChain[0];
+         var _loc1_:*;
+         var _loc2_:Array;
+         for each (_loc2_ in _curEnv.scopeChain){
+            if (_loc2_[0]) continue;
+            _loc1_=_loc2_[1];
+            break;
+         }
+         return _loc1_;
       }
       
       public static function importStaticMethods(param1:Class, param2:* = null) : void
@@ -460,13 +468,13 @@ package r1.deval.rt
       
       function getProperty(param1:*,checkonly:Boolean=false) : *
       {
-         var _loc2_:* = undefined;
+         var _loc2_:Array;
          var e:Error;
          for each(_loc2_ in scopeChain)
          {
-            if(_loc2_.hasOwnProperty(param1)){
+            if(_loc2_[1].hasOwnProperty(param1)){
                if (checkonly) return null;
-               else return _loc2_[param1];
+               else return _loc2_[1][param1];
             }
          }
          if(thisObject != null && thisObject_getters[param1])
@@ -477,7 +485,10 @@ package r1.deval.rt
          var ad:ApplicationDomain = ApplicationDomain.currentDomain;
          var x:*;
          for (var j:int=0;j<globalDyns.length;j++) {
-            x=ad.getDefinition(globalDyns[j]+"."+param1);
+            try{
+               x=ad.getDefinition(globalDyns[j]+"."+param1);
+            }
+            catch(e:Error) {continue;}
             if (x!=null) {
                if (x is Class) {
                   importClass(x as Class,param1);
@@ -491,14 +502,19 @@ package r1.deval.rt
                }
             }
          }
-         x=ad.getDefinition(param1);
-         if (x!=null) return x;
+         try{
+            x=ad.getDefinition(param1);
+            if (x!=null) return x;
+         }
+         catch (e:Error) {}
          return undefined;
       }
       
-      function popObject() : *
+      function popObject(temp:Boolean=false) : *
       {
-         return scopeChain.shift();
+         var _loc2_:Array;
+         while ((_loc2_=scopeChain.shift())[0]!=temp) continue;
+         return _loc2_[1];
       }
       
       function setNewProperty(param1:*,param2:*) : void {
@@ -506,12 +522,13 @@ package r1.deval.rt
       }
       function setProperty(param1:*, param2:*) : void
       {
-         var _loc3_:* = undefined;
+         var _loc3_:Array;
          for each(_loc3_ in scopeChain)
          {
-            if(_loc3_.hasOwnProperty(param1))
+            if (_loc3_[0]) continue;
+            if(_loc3_[1].hasOwnProperty(param1))
             {
-               _loc3_[param1] = param2;
+               _loc3_[1][param1] = param2;
                return;
             }
          }
@@ -525,9 +542,9 @@ package r1.deval.rt
          }
       }
       
-      function pushObject(param1:*) : void
+      function pushObject(param1:*,temp:Boolean=false) : void
       {
-         scopeChain.unshift(param1);
+         scopeChain.unshift([temp,param1]);
       }
    }
 }

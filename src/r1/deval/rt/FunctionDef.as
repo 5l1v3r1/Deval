@@ -55,14 +55,12 @@ package r1.deval.rt
          snp=Env.createSnapshot();
          if (thisobj) snp.setThis(thisobj);
          var x:Function = function(...args):Object {
-            var v:Object
             Env.pushEnv(snp);
             if (!fixthisobj) Env.setThis(this);
-            var e:Error;
             try{
                return run(args,null);
             }
-            catch(e) {
+            catch(e:Error) {
                RTErrorHandler.dispatch(e);
                throw e;
             }
