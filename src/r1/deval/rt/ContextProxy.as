@@ -57,19 +57,9 @@ package r1.deval.rt {
 			return this.obj.hasOwnProperty(name);
 		}
 		flash_proxy override function getProperty(name:*):* {
-			if (this.isProxy) return this.obj[name];
-			if (this.getters.hasOwnProperty(name)) return this.getters[name].apply(this.getters[name],[]);
 			return this.obj[name];
 		}
 		flash_proxy override function setProperty(name:*,value:*):void {
-			if (this.isProxy) {
-				this.obj[name]=value;
-				return;
-			}
-			if (this.setters.hasOwnProperty(name)) {
-				this.setters[name].apply(this.setters[name],[value]);
-				return;
-			}
 			this.obj[name]=value;
 		}
 		flash_proxy override function deleteProperty(name:*):Boolean {
