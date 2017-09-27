@@ -118,14 +118,14 @@ package r1.deval.rt
       {
          super();
          this.context = param2==null?(new Object()):param2;
-         this.scopeChain = [[false,this.context]];
+         this.scopeChain = [[false,new ContextProxy(this.context)]];
          this.setThis(param1);
          if (thisObject!=null) {
-            this.scopeChain.push([false,thisObject]);
-            if (thisObject.prototype!=null) this.scopeChain.push([false,thisObject.prototype]);
+            this.scopeChain.push([false,new ContextProxy(thisObject)]);
+            if (thisObject.prototype!=null) this.scopeChain.push([false,new ContextProxy(thisObject.prototype)]);
          }
-         this.scopeChain.push([false,globalVars]);
-         this.scopeChain.push([false,_global]);
+         this.scopeChain.push([false,new ContextProxy(globalVars)]);
+         this.scopeChain.push([false,new ContextProxy(_global)]);
       }
       
       public function setThis(param1:Object):void {
@@ -413,7 +413,7 @@ package r1.deval.rt
          var _loc2_:Array;
          for each (_loc2_ in _curEnv.scopeChain){
             if (_loc2_[0]) continue;
-            _loc1_=_loc2_[1];
+            _loc1_=_loc2_[1].getObject();
             break;
          }
          return _loc1_;
@@ -476,7 +476,7 @@ package r1.deval.rt
          var e:Error;
          for each(_loc2_ in scopeChain)
          {
-            if(_loc2_[1].hasOwnProperty(param1)){
+            if(_loc2_[1].hasGetProperty(param1)){
                if (checkonly) return null;
                else return _loc2_[1][param1];
             }
@@ -518,7 +518,7 @@ package r1.deval.rt
       {
          var _loc2_:Array;
          while ((_loc2_=scopeChain.shift())[0]!=temp) continue;
-         return _loc2_[1];
+         return _loc2_[1].getObject();
       }
       
       function setNewProperty(param1:*,param2:*) : void {
@@ -530,7 +530,7 @@ package r1.deval.rt
          for each(_loc3_ in scopeChain)
          {
             if (_loc3_[0]) continue;
-            if(_loc3_[1].hasOwnProperty(param1))
+            if(_loc3_[1].hasSetProperty(param1))
             {
                _loc3_[1][param1] = param2;
                return;
@@ -547,7 +547,7 @@ package r1.deval.rt
       
       function pushObject(param1:*,temp:Boolean=false) : void
       {
-         scopeChain.unshift([temp,param1]);
+         scopeChain.unshift([temp,new ContextProxy(param1)]);
       }
    }
 }

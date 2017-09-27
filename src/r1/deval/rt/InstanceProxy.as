@@ -20,6 +20,12 @@ package r1.deval.rt {
 		AS3 function addSetter(v:String,w:Function):void {
 			this.setters[v]=w;
 		}
+		AS3 function hasSetProperty(name:*):Boolean {
+			return (this.classObj.hasOwnProperty(name)||this.setters.hasOwnProperty(name));
+		}
+		AS3 function hasGetProperty(name:*):Boolean {
+			return (this.classObj.hasOwnProperty(name)||this.getters.hasOwnProperty(name));
+		}
 		flash_proxy override function setProperty(name:*,value:*):void {
 			if (this.setters.hasOwnProperty(name)) {
 				this.setters[name].apply(this,[name]);
@@ -27,7 +33,7 @@ package r1.deval.rt {
 			else this.classObj[name]=value;
 		}
 		flash_proxy override function hasProperty(name:*):Boolean {
-			return (this.classObj.hasOwnProperty(name)||this.getters.hasOwnProperty(name)||this.setters.hasOwnProperty(name));
+			return this.classObj.hasOwnProperty(name);
 		}
 		flash_proxy override function callProperty(name:*,...args):* {
 			return this.classObj[name].apply(this.classObj,args);
