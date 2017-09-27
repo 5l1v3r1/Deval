@@ -373,10 +373,6 @@ package r1.deval.rt
             return Env.getProperty(_loc1_);
          }
          _loc2_ = host.getAny();
-         if(_loc2_ == null)
-         {
-            return null;
-         }
          return _loc2_[_loc1_];
       }
       

@@ -58,7 +58,7 @@ package r1.deval
 	  });
 	}
 
-	public static function parseProgram(program:String,context:Object=null):Object { return new BaseParser().parseProgram(program,context); }
+	public static function parseProgram(program:String,thisObj:Object=null,context:Object=null):Object { return new BaseParser().parseProgram(program,thisObj,context); }
 
 	public static function importClass(cls:Class):void { Env.importClass(cls); }
 
@@ -73,7 +73,7 @@ package r1.deval
 		if(_useCache && dyncode.length <= _programLimit)
 		{
 		  program = _cache[dyncode];
-		  if(program == null) _cache[dyncode] = program = parseProgram(dyncode,context);
+		  if(program == null) _cache[dyncode] = program = parseProgram(dyncode,thisObj,context);
 		}
 		else
 		{
@@ -92,7 +92,7 @@ package r1.deval
 	    }
 	    program = program[0];
 	  }	*/
-	  return Env.run((program is Array)?(program[0] as Block):program, thisObj, context, (program is Array)?(program[1] as Array):null);
+	  return Env.run(program[0] as Block, thisObj, context, program[1] as Array, program[2] as Object);
 	}
 
 	public static function importFunction(name:String, f:Function):void { Env.importFunction(name, f); }

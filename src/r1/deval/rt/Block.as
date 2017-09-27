@@ -200,6 +200,7 @@ package r1.deval.rt
          var s:IStmt = null;
          if(stmts != null)
          {
+            var ee:Error;
             for each(s in stmts)
             {
                try
@@ -208,9 +209,20 @@ package r1.deval.rt
                }
                catch(e:Error)
                {
+                  trace(e.getStackTrace());
                   if(e is RTError)
                   {
                      (e as RTError).pushline(s.line,s.lineno);
+                     ee=e;
+                  }
+                  else if (e is ErrorContainer) {
+                     e.rtError.pushline(s.line,s.lineno);
+                     ee=e;
+                     e=e.error;
+                  }
+                  else {
+                     ee=new ErrorContainer(new RTError(e.message),e);
+                     ee.rtError.pushline(s.line,s.lineno);
                   }
                   if (isTryBlock) {
                      var res:*,ok:Boolean=false;
@@ -240,7 +252,7 @@ package r1.deval.rt
                         break;
                      }
                   }
-                  throw e;
+                  throw ee;
                }
             }
          }

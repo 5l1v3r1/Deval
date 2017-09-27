@@ -520,6 +520,8 @@ package r1.deval.parser
 	  return expr;
 	}
 
+	protected function get lineno():int {return ts.getLineno();}
+
 	private function condExpr():IExpr
 	{
 	  var ifTrue:IExpr = null;

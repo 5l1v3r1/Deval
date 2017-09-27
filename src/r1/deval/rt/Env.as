@@ -48,8 +48,6 @@ package r1.deval.rt
          "Class":Class
       };
       
-      private static var globalVars:Object = new Object();
-      private static var globalDyns:Array = new Array();
       public var _globalVars:Object = globalVars;
       public var _globalDyns:Array = globalDyns;
       private var tempObjects:Object=new Object();
@@ -101,7 +99,7 @@ package r1.deval.rt
          "msg.no.paren.after.parms":"missing ) after formal parameters"
       };
       
-      private static var curEnv:Env;
+      private static var _curEnv:Env;
        
       
       private var thisObject_getters:Object;
@@ -177,6 +175,14 @@ package r1.deval.rt
          v._globalDyns=this._globalDyns;
          return v;
       }
+      public static function get globalVars():Object {
+         if (_curEnv==null) return (new Object());
+         else return _curEnv._globalVars;
+      }
+      public static function get globalDyns():Array {
+         if (_curEnv==null) return (new Array());
+         else return _curEnv._globalDyns;
+      }
       public static function getClass(param1:String) : Class
       {
          var _loc2_:* = globalVars[param1];
@@ -228,7 +234,7 @@ package r1.deval.rt
          outputFunction(param1);
       }
       
-      public static function run(param1:Block, param2:Object = null, param3:Object = null, funcList:Array=null) : Object
+      public static function run(param1:Block, param2:Object = null, param3:Object = null, funcList:Array=null, classList:Object=null) : Object
       {
          var prgm:Block = param1;
          var thisObj:Object = param2;
@@ -241,11 +247,16 @@ package r1.deval.rt
             {
                pushEnv(env);
 			      w=_curEnv.context;
+               if (classList!=null) Env.pushObject(classList,true);
                if (funcList!=null) {
                   for each(var p:FunctionDef in funcList) Env.setProperty(p.name,p.getFunction(w));
                }
                prgm.run();
                return env.returnValue;
+            }
+            catch(e:Error) {
+               if (e is ErrorContainer) throw e.rtError;
+               else throw e;
             }
             finally
             {
@@ -379,20 +390,6 @@ package r1.deval.rt
          stack.push(_curEnv = param1);
       }
       
-      private static function get _curEnv():Env {
-         return curEnv;
-      }
-      private static function set _curEnv(x:Env):void {
-         if (x==null) {
-            globalDyns=new Array();
-            globalVars=new Object();
-            curEnv=null;
-            return;
-         }
-         globalVars=x._globalVars;
-         globalDyns=x._globalDyns;
-         curEnv=x;
-      }
       public static function reportError(... rest) : void
       {
          outputFunction("[D:error] " + getMessage.apply(null,rest));
@@ -468,6 +465,11 @@ package r1.deval.rt
       
       function getProperty(param1:*,checkonly:Boolean=false) : *
       {
+         if (param1=="null") return null;
+         if (param1=="undefined") {
+            if (checkonly) return null;
+            else return undefined;
+         }
          var _loc2_:Array;
          var e:Error;
          for each(_loc2_ in scopeChain)

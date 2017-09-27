@@ -92,6 +92,9 @@ package r1.deval.rt
          if(newOp)
          {
             _loc1_ = expr.getAny();
+            if (_loc1_ is ClassProxy) {
+               return _loc1_.getInstance(_loc3_);
+            }
             if(!_loc1_)
             {
                throw new RTError("msg.rt.no.class");

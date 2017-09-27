@@ -311,28 +311,32 @@ package r1.deval.parser
                         break loop0;
                   }
                case 6:
-                  switch(_loc5_)
+                  switch(param1.charCodeAt(5))
                   {
-                     case CHAR_d:
+                     case CHAR_e:
                         _loc3_ = "delete";
                         _loc2_ = DELETE;
                         break loop0;
-                     case CHAR_r:
+                     case CHAR_n:
                         _loc3_ = "return";
                         _loc2_ = RETURN;
                         break loop0;
-                     case CHAR_i:
+                     case CHAR_t:
                         _loc3_ = "import";
                         _loc2_ = IMPORT;
                         break loop0;
-                     case CHAR_s:
+                     case CHAR_h:
                         _loc3_ = "switch";
                         _loc2_ = SWITCH;
                         break loop0;
-                     case CHAR_t:
+                     case CHAR_f:
                         _loc3_ = "typeof";
                         _loc2_ = TYPEOF;
                         break loop0;
+					 case CHAR_c:
+						 _loc3_ = "static";
+						 _loc2_ = STATIC;
+						 break loop0;
                      default:
                         break loop0;
                   }
