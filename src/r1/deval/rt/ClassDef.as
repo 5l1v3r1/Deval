@@ -46,8 +46,8 @@ package r1.deval.rt {
 				for each(var m:ImportStmt in this.importStmts) m.exec();
 				this.importStmts=null;
 				for (var s:String in this.staticExpressions) v[s];
-				var mn:Object=v.getObject();
-				this.classObj=new ClassProxy(this);
+				var mn:Object=v.AS3::getObject();
+				this.classObj.AS3::clear();
 				for (var s:String in mn) {
 					this.classObj[s]=mn[s];
 				}
@@ -71,10 +71,10 @@ package r1.deval.rt {
 			Env.pushEnv(w);
 			Env.pushObject(this.internalClasses,true);
 			Env.pushObject(this.classObj,true);
-			var ths:Object=m.getObject();
+			var ths:Object=m.AS3::getObject();
 			try{
 				for (var s:String in this.functionExprs) m[s]=this.functionExprs[s].getFunction(ths);
-				for (var s:String in this.varExprs) m.addProperty(s,this.varExprs[s],false);
+				for (var s:String in this.varExprs) m.AS3::addProperty(s,this.varExprs[s],false);
 				for (var s:String in this.varExprs) m[s];
 				if (this.construct!=null) this.construct.getFunction(ths).apply(null,args);
 			}

@@ -24,12 +24,12 @@ package r1.deval.rt {
 			}
 			return this.exprs[name];
 		}
-		public function addProperty(name:*,value:*,init:Boolean=true):void {
+		AS3 function addProperty(name:*,value:*,init:Boolean=true):void {
 			this.exprs[name]=value;
 			if (init) this.isinited[name]=true;
 			else delete this.isinited[name];
 		}
-		public function getObject():Object {
+		AS3 function getObject():Object {
 			return this.exprs;
 		}
 		flash_proxy override function setProperty(name:*,value:*):void {

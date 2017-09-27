@@ -209,7 +209,6 @@ package r1.deval.rt
                }
                catch(e:Error)
                {
-                  trace(e.getStackTrace());
                   if(e is RTError)
                   {
                      (e as RTError).pushline(s.line,s.lineno);

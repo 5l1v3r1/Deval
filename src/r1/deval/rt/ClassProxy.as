@@ -8,11 +8,16 @@ package r1.deval.rt {
 			this.classDef=classDef;
 			this.classObj=new Object();
 		}
-		public function getInstance(...args):Object {
+		AS3 function getInstance(...args):Object {
 			return this.classDef.getInstance.apply(null,args);
 		}
 		flash_proxy override function getProperty(name:*):* {
 			return this.classObj[name];
+		}
+		AS3 function clear():void {
+			for (var s:String in classObj) {
+				delete this.classObj[s];
+			}
 		}
 		flash_proxy override function setProperty(name:*,value:*):void {
 			this.classObj[name]=value;
