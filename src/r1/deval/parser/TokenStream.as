@@ -235,6 +235,14 @@ package r1.deval.parser
                         _loc3_ = "xor";
                         _loc2_ = XOR;
                         break loop0;
+                     case CHAR_g:
+                        _loc3_ = "get";
+                        _loc2_ = GET;
+                        break loop0;
+                     case CHAR_s:
+                        _loc3_ = "set";
+                        _loc2_ = SET;
+                        break loop0;
                      default:
                         break loop0;
                   }
@@ -333,10 +341,10 @@ package r1.deval.parser
                         _loc3_ = "typeof";
                         _loc2_ = TYPEOF;
                         break loop0;
-					 case CHAR_c:
-						 _loc3_ = "static";
-						 _loc2_ = STATIC;
-						 break loop0;
+                     case CHAR_c:
+                        _loc3_ = "static";
+                        _loc2_ = STATIC;
+                        break loop0;
                      default:
                         break loop0;
                   }

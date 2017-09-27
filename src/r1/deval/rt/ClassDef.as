@@ -12,19 +12,29 @@ package r1.deval.rt {
 		private var varExprs:Object;
 		private var functionExprs:Object;
 		private var construct:FunctionDef;
-		public function ClassDef(classname:String,classes:Object,staticExprs:Object,varExprs:Object,functionExprs:Object,importStmts:Array):void {
+		private var staticgetters:Object;
+		private var staticsetters:Object;
+		private var vargetters:Object;
+		private var varsetters:Object;
+		public function ClassDef(classname:String,classes:Object,staticExprs:Object,varExprs:Object,functionExprs:Object,importStmts:Array,staticgetters:Object,staticsetters:Object,vargetters:Object,varsetters:Object):void {
 			this.internalClasses=classes;
 			this.staticExpressions=staticExprs;
 			this.classObj=new ClassProxy(this);
 			this.globalDyns=new Array();
 			this.globalVars=new Object();
 			this.classname=classname;
-			for (var v in this.staticExpressions) {
+			for (var v:String in this.staticExpressions) {
 				this.classObj[v]=undefined;
 			}
 			this.importStmts=importStmts;
 			this.varExprs=varExprs;
 			this.functionExprs=functionExprs;
+			this.vargetters=vargetters;
+			this.varsetters=varsetters;
+			this.staticsetters=staticsetters;
+			this.staticgetters=staticgetters;
+			for (var v in this.staticgetters) this.classObj.AS3::addGetter(v,this.staticgetters[v]);
+			for (var v in this.staticsetters) this.classObj.AS3::addSetter(v,this.staticsetters[v]);
 			if (this.functionExprs[classname]!=undefined) {
 				this.construct=this.functionExprs[classname];
 				delete this.functionExprs[classname];
@@ -35,21 +45,24 @@ package r1.deval.rt {
 			try{
 				isIniting=true;
 				var v:ExprHolder=new ExprHolder(this.staticExpressions);
-				for (var s:String in this.internalClasses) {
-					v[s]=this.internalClasses[s];
-				}
-				var w:Env=new Env(null,v);
+				var w:Env=new Env(null,null);
 				w._globalVars=this.globalVars;
 				w._globalDyns=this.globalDyns;
 				Env.pushEnv(w);
 				ok=true;
+				Env.pushObject(this.internalClasses,true);
+				Env.pushObject(this.classObj);
+				Env.setContext(this.classObj);
+				for (var s:String in this.staticgetters) this.classObj.AS3::addGetter(s,this.staticgetters[s].getFunction());
+				this.staticgetters=null;
+				for (var s:String in this.staticsetters) this.classObj.AS3::addSetter(s,this.staticsetters[s].getFunction());
+				this.staticsetters=null;
 				for each(var m:ImportStmt in this.importStmts) m.exec();
 				this.importStmts=null;
-				for (var s:String in this.staticExpressions) v[s];
-				var mn:Object=v.AS3::getObject();
-				this.classObj.AS3::clear();
-				for (var s:String in mn) {
-					this.classObj[s]=mn[s];
+				Env.pushObject(this.staticExpressions,true);
+				for (var s:String in this.staticExpressions) {
+					this.classObj[s]=v[s];
+					delete this.staticExpressions[s];
 				}
 				this.isInited=true;
 				this.staticExpressions=null;
@@ -64,18 +77,26 @@ package r1.deval.rt {
 			return this.classObj;
 		}
 		public function getInstance(...args):Object {
+			var ths:InstanceProxy=new InstanceProxy();
 			var m:ExprHolder=new ExprHolder(null);
-			var w:Env=new Env(m,m);
+			var w:Env=new Env(m,null);
 			w._globalVars=this.globalVars;
 			w._globalDyns=this.globalDyns;
 			Env.pushEnv(w);
 			Env.pushObject(this.internalClasses,true);
-			Env.pushObject(this.classObj,true);
-			var ths:Object=m.AS3::getObject();
+			Env.pushObject(this.classObj);
+			Env.pushObject(ths);
+			Env.setContext(ths);
+			Env.pushObject(m,true);
+			for (var s:String in this.vargetters) ths.addGetter(s,this.vargetters[s].getFunction(ths));
+			for (var s:String in this.varsetters) ths.addSetter(s,this.varsetters[s].getFunction(ths));
 			try{
-				for (var s:String in this.functionExprs) m[s]=this.functionExprs[s].getFunction(ths);
+				for (var s:String in this.functionExprs) ths[s]=this.functionExprs[s].getFunction(ths);
 				for (var s:String in this.varExprs) m.AS3::addProperty(s,this.varExprs[s],false);
-				for (var s:String in this.varExprs) m[s];
+				for (var s:String in this.varExprs) {
+					ths[s]=m[s];
+					delete m[s];
+				}
 				if (this.construct!=null) this.construct.getFunction(ths).apply(null,args);
 			}
 			finally {

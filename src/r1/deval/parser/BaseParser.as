@@ -525,12 +525,17 @@ package r1.deval.parser
 		var staticexprs:Object=new Object();
 		var functionexprs:Object=new Object();
 		var importstmts:Array=new Array();
+		var staticgetters:Object=new Object();
+		var staticsetters:Object=new Object();
+		var vargetters:Object=new Object();
+		var varsetters:Object=new Object();
 		var v:String=checkAndConsumeToken(NAME,"msg.no.class.name","K101");
 		addGlobalVar(v);
 		if (this.classList.hasOwnProperty(v)) reportError("msg.multiple.class.defn","K100");
 		checkAndConsumeToken(LC,"msg.no.brace.for.class.body","K102");
 		newBlock(":class("+v+"):");
 		var w:FunctionDef,m:int,n:Array,p:String;
+		var mw:Object;
 		while (true) {
 			switch(peekToken()) {
 				case RC:
@@ -542,12 +547,23 @@ package r1.deval.parser
 						case FUNCTION:
 							consumeToken();
 							m=lineno;
+							mw=staticexprs;
+							switch (peekToken()) {
+								case GET:
+									mw=staticgetters;
+									consumeToken();
+									break;
+								case SET:
+									mw=staticsetters;
+									consumeToken();
+									break;
+							}
 							p=checkAndConsumeToken(NAME,"msg.no.function.name","K107");
 							w=parseFunction(true);
-							if (staticexprs.hasOwnProperty(p)) {
+							if (staticexprs.hasOwnProperty(p)||mw.hasOwnProperty(p)) {
 								reportError("msg.multiple.var.defn","K103",null,null,null,m);
 							}
-							staticexprs[p]=w;
+							mw[p]=w;
 							w.name=p;
 							addNewVar(p,false);
 							break;
@@ -570,13 +586,25 @@ package r1.deval.parser
 				case FUNCTION:
 					consumeToken();
 					m=ts.getLineno();
+					mw=functionexprs;
+					switch (peekToken()) {
+						case GET:
+							mw=vargetters;
+							consumeToken();
+							break;
+						case SET:
+							mw=varsetters;
+							consumeToken();
+							break;
+					}
 					p=checkAndConsumeToken(NAME,"msg.no.function.name","K107");
 					w=parseFunction(true);
-					if (varstmts.hasOwnProperty(p)||functionexprs.hasOwnProperty(p)) {
+					if (varstmts.hasOwnProperty(p)||functionexprs.hasOwnProperty(p)||mw.hasOwnProperty(p)) {
 						reportError("msg.multiple.var.defn","K105",null,null,null,m);
 					}
-					functionexprs[p]=w;
+					mw[p]=w;
 					w.name=p;
+					addNewVar(p,false);
 					continue;
 				case IMPORT:
 					consumeToken();
@@ -592,7 +620,7 @@ package r1.deval.parser
 			}
 			break;
 		}
-		this.classList[v]=new ClassDef(v,this.classList,staticexprs,varstmts,functionexprs,importstmts);
+		this.classList[v]=new ClassDef(v,this.classList,staticexprs,varstmts,functionexprs,importstmts,staticsetters,staticsetters,vargetters,varsetters);
 		popBlock();
 	}
 	private function tryStatement(arg:int):void

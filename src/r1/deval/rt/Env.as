@@ -120,8 +120,10 @@ package r1.deval.rt
          this.context = param2==null?(new Object()):param2;
          this.scopeChain = [[false,this.context]];
          this.setThis(param1);
-         this.scopeChain.push([false,thisObject]);
-         if (thisObject.prototype!=null) this.scopeChain.push([false,thisObject.prototype]);
+         if (thisObject!=null) {
+            this.scopeChain.push([false,thisObject]);
+            if (thisObject.prototype!=null) this.scopeChain.push([false,thisObject.prototype]);
+         }
          this.scopeChain.push([false,globalVars]);
          this.scopeChain.push([false,_global]);
       }
@@ -155,7 +157,7 @@ package r1.deval.rt
          }
          else
          {
-            thisObject=new Object();
+            thisObject=null;
             thisObject_setters = thisObject_getters;
          }
       }
@@ -479,7 +481,7 @@ package r1.deval.rt
                else return _loc2_[1][param1];
             }
          }
-         if(thisObject != null && thisObject_getters[param1])
+         if(thisObject!=null&&(thisObject.hasOwnProperty(param1)||thisObject_getters[param1]))
          {
             if (checkonly) return null;
             else return thisObject[param1];
@@ -534,9 +536,8 @@ package r1.deval.rt
                return;
             }
          }
-         if(thisObject != null && thisObject_setters[param1])
-         {
-            thisObject[param1] = param2;
+         if (thisObject!=null&&(thisObject.hasOwnProperty(param1)||thisObject_setters[param1])) {
+            thisObject[param1]=param2;
          }
          else
          {
