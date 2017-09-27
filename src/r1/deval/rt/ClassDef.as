@@ -33,8 +33,8 @@ package r1.deval.rt {
 			this.varsetters=varsetters;
 			this.staticsetters=staticsetters;
 			this.staticgetters=staticgetters;
-			for (var v in this.staticgetters) this.classObj.AS3::addGetter(v,this.staticgetters[v]);
-			for (var v in this.staticsetters) this.classObj.AS3::addSetter(v,this.staticsetters[v]);
+			for (var v in this.staticgetters) this.classObj.AS3::addGetter(v,null);
+			for (var v in this.staticsetters) this.classObj.AS3::addSetter(v,null);
 			if (this.functionExprs[classname]!=undefined) {
 				this.construct=this.functionExprs[classname];
 				delete this.functionExprs[classname];
@@ -53,13 +53,13 @@ package r1.deval.rt {
 				Env.pushObject(this.internalClasses,true);
 				Env.pushObject(this.classObj);
 				Env.setContext(this.classObj);
+				Env.pushObject(v,true);
 				for (var s:String in this.staticgetters) this.classObj.AS3::addGetter(s,this.staticgetters[s].getFunction());
 				this.staticgetters=null;
 				for (var s:String in this.staticsetters) this.classObj.AS3::addSetter(s,this.staticsetters[s].getFunction());
 				this.staticsetters=null;
 				for each(var m:ImportStmt in this.importStmts) m.exec();
 				this.importStmts=null;
-				Env.pushObject(this.staticExpressions,true);
 				for (var s:String in this.staticExpressions) {
 					this.classObj[s]=v[s];
 					delete this.staticExpressions[s];

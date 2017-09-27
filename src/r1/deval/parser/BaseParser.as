@@ -620,7 +620,7 @@ package r1.deval.parser
 			}
 			break;
 		}
-		this.classList[v]=new ClassDef(v,this.classList,staticexprs,varstmts,functionexprs,importstmts,staticsetters,staticsetters,vargetters,varsetters);
+		this.classList[v]=new ClassDef(v,this.classList,staticexprs,varstmts,functionexprs,importstmts,staticgetters,staticsetters,vargetters,varsetters);
 		popBlock();
 	}
 	private function tryStatement(arg:int):void
