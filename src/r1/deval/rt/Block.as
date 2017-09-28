@@ -2,7 +2,6 @@ package r1.deval.rt
 {
    import r1.deval.parser.BaseParser;
    import r1.deval.parser.TokenStream;
-   import flash.utils.getQualifiedClassName;
    
    public class Block
    {

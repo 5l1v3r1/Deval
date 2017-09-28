@@ -413,7 +413,7 @@ package r1.deval.rt
          var _loc2_:Array;
          for each (_loc2_ in _curEnv.scopeChain){
             if (_loc2_[0]) continue;
-            _loc1_=_loc2_[1].getObject();
+            _loc1_=_loc2_[1].deval_namesp::getObject();
             break;
          }
          return _loc1_;
@@ -476,7 +476,7 @@ package r1.deval.rt
          var e:Error;
          for each(_loc2_ in scopeChain)
          {
-            if(_loc2_[1].hasGetProperty(param1)){
+            if(_loc2_[1].deval_namesp::hasGetProperty(param1)){
                if (checkonly) return null;
                else return _loc2_[1][param1];
             }
@@ -518,7 +518,7 @@ package r1.deval.rt
       {
          var _loc2_:Array;
          while ((_loc2_=scopeChain.shift())[0]!=temp) continue;
-         return _loc2_[1].getObject();
+         return _loc2_[1].deval_namesp::getObject();
       }
       
       function setNewProperty(param1:*,param2:*) : void {
@@ -530,7 +530,7 @@ package r1.deval.rt
          for each(_loc3_ in scopeChain)
          {
             if (_loc3_[0]) continue;
-            if(_loc3_[1].hasSetProperty(param1))
+            if(_loc3_[1].deval_namesp::hasSetProperty(param1))
             {
                _loc3_[1][param1] = param2;
                return;

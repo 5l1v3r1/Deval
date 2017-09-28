@@ -37,17 +37,17 @@ package r1.deval.rt {
 				}
 			}
 		}
-		AS3 function hasGetProperty(x:*):Boolean {
+		deval_namesp function hasGetProperty(x:*):Boolean {
 			if (this.isnull) return false;
-			if (this.isProxy) return this.obj.AS3::hasGetProperty(x);
+			if (this.isProxy) return this.obj.deval_namesp::hasGetProperty(x);
 			return (this.obj.hasOwnProperty(x)||this.getters.hasOwnProperty(x));
 		}
-		AS3 function hasSetProperty(x:*):Boolean {
+		deval_namesp function hasSetProperty(x:*):Boolean {
 			if (this.isnull) return false;
-			if (this.isProxy) return this.obj.AS3::hasSetProperty(x);
+			if (this.isProxy) return this.obj.deval_namesp::hasSetProperty(x);
 			return (this.obj.hasOwnProperty(x)||this.setters.hasOwnProperty(x));
 		}
-		AS3 function getObject():Object {
+		deval_namesp function getObject():Object {
 			return this.obj;
 		}
 		flash_proxy override function callProperty(name:*,...args):* {

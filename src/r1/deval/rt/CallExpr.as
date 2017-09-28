@@ -93,7 +93,7 @@ package r1.deval.rt
          {
             _loc1_ = expr.getAny();
             if (_loc1_ is ClassProxy) {
-               return _loc1_.AS3::getInstance(_loc3_);
+               return _loc1_.deval_namesp::getInstance(_loc3_);
             }
             if(!_loc1_)
             {

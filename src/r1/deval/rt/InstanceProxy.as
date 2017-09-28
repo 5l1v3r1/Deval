@@ -14,16 +14,16 @@ package r1.deval.rt {
 			}
 			return this.classObj[name];
 		}
-		AS3 function addGetter(v:String,w:Function):void {
+		deval_namesp function addGetter(v:String,w:Function):void {
 			this.getters[v]=w;
 		}
-		AS3 function addSetter(v:String,w:Function):void {
+		deval_namesp function addSetter(v:String,w:Function):void {
 			this.setters[v]=w;
 		}
-		AS3 function hasSetProperty(name:*):Boolean {
+		deval_namesp function hasSetProperty(name:*):Boolean {
 			return (this.classObj.hasOwnProperty(name)||this.setters.hasOwnProperty(name));
 		}
-		AS3 function hasGetProperty(name:*):Boolean {
+		deval_namesp function hasGetProperty(name:*):Boolean {
 			return (this.classObj.hasOwnProperty(name)||this.getters.hasOwnProperty(name));
 		}
 		flash_proxy override function setProperty(name:*,value:*):void {

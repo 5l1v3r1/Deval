@@ -530,6 +530,7 @@ package r1.deval.parser
 		var vargetters:Object=new Object();
 		var varsetters:Object=new Object();
 		var v:String=checkAndConsumeToken(NAME,"msg.no.class.name","K101");
+		addContext();
 		addGlobalVar(v);
 		if (this.classList.hasOwnProperty(v)) reportError("msg.multiple.class.defn","K100");
 		checkAndConsumeToken(LC,"msg.no.brace.for.class.body","K102");
@@ -622,6 +623,7 @@ package r1.deval.parser
 		}
 		this.classList[v]=new ClassDef(v,this.classList,staticexprs,varstmts,functionexprs,importstmts,staticgetters,staticsetters,vargetters,varsetters);
 		popBlock();
+		popContext();
 	}
 	private function tryStatement(arg:int):void
 	{

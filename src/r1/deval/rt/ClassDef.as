@@ -33,8 +33,8 @@ package r1.deval.rt {
 			this.varsetters=varsetters;
 			this.staticsetters=staticsetters;
 			this.staticgetters=staticgetters;
-			for (var v in this.staticgetters) this.classObj.AS3::addGetter(v,null);
-			for (var v in this.staticsetters) this.classObj.AS3::addSetter(v,null);
+			for (var v in this.staticgetters) this.classObj.deval_namesp::addGetter(v,null);
+			for (var v in this.staticsetters) this.classObj.deval_namesp::addSetter(v,null);
 			if (this.functionExprs[classname]!=undefined) {
 				this.construct=this.functionExprs[classname];
 				delete this.functionExprs[classname];
@@ -54,16 +54,17 @@ package r1.deval.rt {
 				Env.pushObject(this.classObj);
 				Env.setContext(this.classObj);
 				Env.pushObject(v,true);
-				for (var s:String in this.staticgetters) this.classObj.AS3::addGetter(s,this.staticgetters[s].getFunction());
+				for (var s:String in this.staticgetters) this.classObj.deval_namesp::addGetter(s,this.staticgetters[s].getFunction());
 				this.staticgetters=null;
-				for (var s:String in this.staticsetters) this.classObj.AS3::addSetter(s,this.staticsetters[s].getFunction());
+				for (var s:String in this.staticsetters) this.classObj.deval_namesp::addSetter(s,this.staticsetters[s].getFunction());
 				this.staticsetters=null;
 				for each(var m:ImportStmt in this.importStmts) m.exec();
 				this.importStmts=null;
 				for (var s:String in this.staticExpressions) {
 					this.classObj[s]=v[s];
-					delete this.staticExpressions[s];
+					delete v[s];
 				}
+				v.deval_namesp::clear();
 				this.isInited=true;
 				this.staticExpressions=null;
 			}
@@ -88,15 +89,16 @@ package r1.deval.rt {
 			Env.pushObject(ths);
 			Env.setContext(ths);
 			Env.pushObject(m,true);
-			for (var s:String in this.vargetters) ths.addGetter(s,this.vargetters[s].getFunction(ths));
-			for (var s:String in this.varsetters) ths.addSetter(s,this.varsetters[s].getFunction(ths));
+			for (var s:String in this.vargetters) ths.deval_namesp::addGetter(s,this.vargetters[s].getFunction(ths));
+			for (var s:String in this.varsetters) ths.deval_namesp::addSetter(s,this.varsetters[s].getFunction(ths));
 			try{
 				for (var s:String in this.functionExprs) ths[s]=this.functionExprs[s].getFunction(ths);
-				for (var s:String in this.varExprs) m.AS3::addProperty(s,this.varExprs[s],false);
+				for (var s:String in this.varExprs) m.deval_namesp::addProperty(s,this.varExprs[s],false);
 				for (var s:String in this.varExprs) {
 					ths[s]=m[s];
 					delete m[s];
 				}
+				m.deval_namesp::clear();
 				if (this.construct!=null) this.construct.getFunction(ths).apply(null,args);
 			}
 			finally {

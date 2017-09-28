@@ -4,6 +4,7 @@ package r1.deval.rt {
 	public class ExprHolder extends Proxy {
 		private var exprs:Object;
 		private var isinited:Object;
+		private var cleared:Boolean=false;
 		public function ExprHolder(expressions:Object):void {
 			this.exprs=new Object();
 			for (var s:String in expressions) {
@@ -12,9 +13,15 @@ package r1.deval.rt {
 			this.isinited=new Object();
 		}
 		flash_proxy override function hasProperty(name:*):Boolean {
+			if (this.cleared) return false;
 			return this.exprs.hasOwnProperty(name);
 		}
+		deval_namesp function clear():void {
+			this.exprs=null;
+			this.cleared=true;
+		}
 		flash_proxy override function getProperty(name:*):* {
+			if (this.cleared) return undefined;
 			if (!this.exprs.hasOwnProperty(name)) return undefined;
 			var v:*=this.exprs[name];
 			if (v is ClassDef) return v.getStaticObject();
@@ -24,15 +31,17 @@ package r1.deval.rt {
 			}
 			return this.exprs[name];
 		}
-		AS3 function addProperty(name:*,value:*,init:Boolean=true):void {
+		deval_namesp function addProperty(name:*,value:*,init:Boolean=true):void {
+			if (this.cleared) return;
 			this.exprs[name]=value;
 			if (init) this.isinited[name]=true;
 			else delete this.isinited[name];
 		}
-		AS3 function getObject():Object {
+		deval_namesp function getObject():Object {
 			return this.exprs;
 		}
 		flash_proxy override function setProperty(name:*,value:*):void {
+			if (this.cleared) return;
 			this.exprs[name]=value;
 			this.isinited[name]=true;
 		}
@@ -40,7 +49,7 @@ package r1.deval.rt {
 			return this.exprs[name].apply(this.exprs[name],args);
 		}
 		flash_proxy override function deleteProperty(name:*):Boolean {
-			if (!this.exprs.hasOwnProperty(name)) return false;
+			if (this.cleared||!this.exprs.hasOwnProperty(name)) return false;
 			delete this.exprs[name];
 			delete this.isinited[name];
 			return true;
