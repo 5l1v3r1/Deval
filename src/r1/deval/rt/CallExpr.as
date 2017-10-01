@@ -1,144 +1,120 @@
 package r1.deval.rt
 {
-   public class CallExpr extends ObjectExprBase
-   {
-       
-      
-      private var newOp:Boolean;
-      
-      private var expr:IExpr;
-      
-      private var params:Array;
-      
-      public function CallExpr(param1:Boolean, param2:IExpr)
-      {
-         params = [];
-         super();
-         this.expr = param2;
-         this.newOp = param1;
-      }
-      
-      private static function newInstance(param1:*, param2:Array) : Object
-      {
-         switch(param2.length)
-         {
-            case 0:
-               return new param1();
-            case 1:
-               return new param1(param2[0]);
-            case 2:
-               return new param1(param2[0],param2[1]);
-            case 3:
-               return new param1(param2[0],param2[1],param2[2]);
-            case 4:
-               return new param1(param2[0],param2[1],param2[2],param2[3]);
-            case 5:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4]);
-            case 6:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5]);
-            case 7:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6]);
-            case 8:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7]);
-            case 9:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7],param2[8]);
-            case 10:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7],param2[8],param2[9]);
-            case 11:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7],param2[8],param2[9],param2[10]);
-            case 12:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7],param2[8],param2[9],param2[10],param2[11]);
-            case 13:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7],param2[8],param2[9],param2[10],param2[11],param2[12]);
-            case 14:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7],param2[8],param2[9],param2[10],param2[11],param2[12],param2[13]);
-            case 15:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7],param2[8],param2[9],param2[10],param2[11],param2[12],param2[13],param2[14]);
-            case 16:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7],param2[8],param2[9],param2[10],param2[11],param2[12],param2[13],param2[14],param2[15]);
-            case 17:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7],param2[8],param2[9],param2[10],param2[11],param2[12],param2[13],param2[14],param2[15],param2[16]);
-            case 18:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7],param2[8],param2[9],param2[10],param2[11],param2[12],param2[13],param2[14],param2[15],param2[16],param2[17]);
-            case 19:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7],param2[8],param2[9],param2[10],param2[11],param2[12],param2[13],param2[14],param2[15],param2[16],param2[17],param2[18]);
-            case 20:
-               return new param1(param2[0],param2[1],param2[2],param2[3],param2[4],param2[5],param2[6],param2[7],param2[8],param2[9],param2[10],param2[11],param2[12],param2[13],param2[14],param2[15],param2[16],param2[17],param2[18],param2[19]);
-            default:
-               throw new Error("Number of parameters exceeds limit of 20.");
-         }
-      }
-      
-      public function addParam(param1:IExpr) : void
-      {
-         params.push(param1);
-      }
-      
-      override public function getAny() : Object
-      {
-         var _loc1_:* = undefined;
-         var _loc2_:* = undefined;
-         var _loc4_:Accessor = null;
-         var _loc5_:Array = null;
-         var _loc3_:Array = [];
-         for each(_loc2_ in params)
-         {
-            if(_loc2_ is IExpr)
-            {
-               _loc2_ = (_loc2_ as IExpr).getAny();
-            }
-            _loc3_.push(_loc2_);
-         }
-         if(newOp)
-         {
-            _loc1_ = expr.getAny();
-            if (_loc1_ is ClassProxy) {
-               return _loc1_.deval_namesp::getInstance(_loc3_);
-            }
-            if(!_loc1_)
-            {
-               throw new RTError("msg.rt.no.class");
-            }
-            if(!(_loc1_ is Class)&&!(_loc1_ is Function))
-            {
-               throw new RTError("msg.rt.not.callable");
-            }
-            return newInstance(_loc1_,_loc3_);
-         }
-         if(expr is Accessor)
-         {
-            _loc4_ = expr as Accessor;
-            _loc5_ = [null,null,false];
-            _loc4_.resolveMethod(_loc5_);
-            _loc2_ = _loc5_[0];
-            _loc1_ = _loc5_[1];
-            if(_loc5_[2])
-            {
-               _loc3_.unshift(_loc2_);
-               _loc2_ = null;
-            }
-         }
-         else
-         {
-            _loc2_ = null;
-            _loc1_ = expr.getAny();
-         }
-         if(_loc1_ != null)
-         {
-            if(_loc1_ is Function)
-            {
-               return (_loc1_ as Function).apply(_loc2_==null?Env.peekObject():_loc2_,_loc3_);
-            }
-            if(_loc1_ is Class)
-            {
-               if(_loc3_.length <= 0)
-               {
-                  return null;
-               }
-               return _loc3_[0] as (_loc1_ as Class);
-            }
-         }
-         throw new RTError("msg.rt.no.function");
-      }
-   }
+  public class CallExpr extends ObjectExprBase
+  {
+	private var newOp:Boolean;
+	private var expr:IExpr;
+	private var params:Array;
+
+	public function CallExpr(newOp:Boolean, expr:IExpr)
+	{
+	  params = [];
+	  super();
+	  this.expr = expr;
+	  this.newOp = newOp;
+	}
+
+	private static function newInstance(clz:*, v:Array):Object
+	{
+	  switch(v.length)
+	  {
+		case 0:
+		  return new clz();
+		case 1:
+		  return new clz(v[0]);
+		case 2:
+		  return new clz(v[0], v[1]);
+		case 3:
+		  return new clz(v[0], v[1], v[2]);
+		case 4:
+		  return new clz(v[0], v[1], v[2], v[3]);
+		case 5:
+		  return new clz(v[0], v[1], v[2], v[3], v[4]);
+		case 6:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5]);
+		case 7:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6]);
+		case 8:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
+		case 9:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]);
+		case 10:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9]);
+		case 11:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10]);
+		case 12:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11]);
+		case 13:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12]);
+		case 14:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13]);
+		case 15:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14]);
+		case 16:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]);
+		case 17:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16]);
+		case 18:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], v[17]);
+		case 19:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], v[17], v[18]);
+		case 20:
+		  return new clz(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], v[17], v[18], v[19]);
+		default:
+		  throw new Error("Number of parameters exceeds limit of 20.");
+	  }
+	}
+
+	public function addParam(p:IExpr):void { params.push(p); }
+
+	override public function getAny():Object
+	{
+	  var fxn:* = undefined;
+	  var x:* = undefined;
+	  var acc:Accessor = null;
+	  var mthdInfo:Array = null;
+	  var vals:Array = [];
+	  for each (x in params)
+	  {
+		if (x is IExpr) x = (x as IExpr).getAny();
+		vals.push(x);
+	  }
+	  if(newOp)
+	  {
+		fxn = expr.getAny();
+		if (fxn is ClassProxy) return fxn.deval_namesp::getInstance(vals);
+		if (!fxn) throw new RTError("msg.rt.no.class");
+ 		if (!(fxn is Class) && !(fxn is Function)) throw new RTError("msg.rt.not.callable");
+		return newInstance(fxn, vals);
+	  }
+	  if (expr is Accessor)
+	  {
+		acc = expr as Accessor;
+		mthdInfo = [null, null, false];
+		acc.resolveMethod(mthdInfo);
+		x = mthdInfo[0];
+		fxn = mthdInfo[1];
+		if(mthdInfo[2])
+		{
+		  vals.unshift(x);
+		  x = null;
+		}
+	  }
+	  else
+	  {
+		x = null;
+		fxn = expr.getAny();
+	  }
+	  if(fxn != null)
+	  {
+		if(fxn is Function) return (fxn as Function).apply(x == null ? Env.peekObject() : x, vals);
+		if(fxn is Class)
+		{
+		  if(vals.length <= 0) return null;
+		  return vals[0] as (fxn as Class);
+		}
+	  }
+	  throw new RTError("msg.rt.no.function");
+	}
+  }
 }

@@ -19,7 +19,7 @@ package r1.deval.parser
 	public static function processMessage(msg:String):String
 	{
 	  if (!msg) return codeBugMessage;
-	  if (!Util.beginsWith(msg,"msg.")) { }
+	  if (!Util.beginsWith(msg, "msg.")) { }
 	  return msg;
 	}
 
@@ -34,7 +34,7 @@ package r1.deval.parser
 	  var str:String = "Parse Error: " + super.message;
 	  if (_lineno <= 0 && !_id) return str;
 	  if (_lineno > 0) str = str + ("\n\tat line:" + _lineno + ": " + _line);
-//    if(id) str = str + ("/" + id);
+//    if (id) str = str + ("/" + id);
 	  return str;
 	}
   }

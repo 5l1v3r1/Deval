@@ -25,17 +25,18 @@ package r1.deval.parser
 	  this.exprFactory = new ExprFactory();
 	}
 
-	protected function checkVarDefined(x:String,lineno:int=-1):void {}
+	protected function checkVarDefined(x:String, lineno:int=-1):void {}
+
 	protected function propertyName(host:IExpr, name:String, attrFlag:Boolean=false, descFlag:Boolean=false):IExpr
 	{
 	  var tt:int = 0;
 	  var ns:IExpr = null;
-	  if(matchToken(COLONCOLON))
+	  if (matchToken(COLONCOLON))
 	  {
-        checkVarDefined(name);
+		checkVarDefined(name);
 		ns = exprFactory.createAccessor(null, name);
 		tt = nextToken();
-		switch(tt)
+		switch (tt)
 		{
 		  case NAME:
 			name = ts.getString();
@@ -52,7 +53,7 @@ package r1.deval.parser
 			name = "?";
 		}
 	  }
-     if (host==null) checkVarDefined(name);
+	  if (host == null) checkVarDefined(name);
 	  return exprFactory.createAccessor(host, name, ns, attrFlag, descFlag);
 	}
 
@@ -443,9 +444,9 @@ package r1.deval.parser
 	  if (!(expr is ISettable)) reportError("msg.not.assignable", "K03");
 	}
 
-	public function reportError(msgId:String, id:String, p1:String=null, p2:String=null, p3:String=null, linen:int=-1):void
+	public function reportError(msgId:String, id:String, p1:String=null, p2:String=null, p3:String=null, lineno:int=-1):void
 	{
-	  var v:int=linen==-1?ts.getLineno():linen;
+	  var v:int = lineno == -1 ? ts.getLineno() : lineno;
 	  throw new ParseError(Env.getMessage(msgId, p1, p2, p3), id, v, ts.getLineFromNo(v));
 	}
 
@@ -520,7 +521,7 @@ package r1.deval.parser
 	  return expr;
 	}
 
-	protected function get lineno():int {return ts.getLineno();}
+	protected function get lineno():int { return ts.getLineno(); }
 
 	private function condExpr():IExpr
 	{

@@ -206,8 +206,8 @@ package r1.deval.parser
 	internal static const COLONCOLON:int = 140;
 	internal static const DOTDOTDOT:int=191;
 	public static const STATIC:int = 192;
-	public static const GET:int=193;
-	public static const SET:int=194;
+	public static const GET:int = 193;
+	public static const SET:int = 194;
 	public static const ESCXMLATTR:int = 71;
 	public static const SEMI:int = 78;
 	public static const CHAR_BAN:int = 33;

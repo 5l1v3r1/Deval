@@ -1,7 +1,9 @@
 package r1.deval.parser
 {
   import r1.deval.rt.Block;
+  import r1.deval.rt.ClassDef;
   import r1.deval.rt.EndBlock;
+  import r1.deval.rt.Env;
   import r1.deval.rt.ExprList;
   import r1.deval.rt.ForInCond;
   import r1.deval.rt.ForInPrologue;
@@ -9,8 +11,6 @@ package r1.deval.parser
   import r1.deval.rt.IExpr;
   import r1.deval.rt.ImportStmt;
   import r1.deval.rt.UnaryStmt;
-  import r1.deval.rt.Env;
-  import r1.deval.rt.ClassDef;
 
   public class BaseParser extends ExprParser
   {
@@ -26,9 +26,9 @@ package r1.deval.parser
 	private var anonLabelCount:int = 0;
 	private var labelStack:Array;
 	private var blockStack:Array;
-   private var contextStack:Array=new Array();
-   private var todoStack:Array=new Array();
-    private var classList:Object=new Object();
+	private var contextStack:Array = new Array();
+	private var todoStack:Array = new Array();
+	private var classList:Object = new Object();
 
 	public function BaseParser()
 	{
@@ -36,38 +36,47 @@ package r1.deval.parser
 	  super();
 	}
 
-   override protected function checkVarDefined(x:String,lineno:int=-1):void {
-   	  if (lineno==-1) lineno=ts.getLineno();
-      for each(var p:Array in contextStack) {
-         if (p.indexOf(x)!=-1) return;
-      }
-      if (Env.getProperty(x,true)!==undefined) return;
-      if (todoStack.length==0) reportError("msg.no.var.defined(var "+x+")","K90",null,null,null,lineno);
-      else todoStack[todoStack.length-1][x]=lineno;
-   }
+	override protected function checkVarDefined(x:String, lineno:int=-1):void
+	{
+	  if (lineno == -1) lineno = ts.getLineno();
+	  for each (var p:Array in contextStack)
+	  {
+		if (p.indexOf(x) != -1) return;
+	  }
+	  if (Env.getProperty(x, true) !== undefined) return;
+	  if (todoStack.length == 0) reportError("msg.no.var.defined(var " + x + ")", "K90", null, null, null, lineno);
+	  else todoStack[todoStack.length - 1][x] = lineno;
+	}
 
-   private function addNewVar(x:String,strict:Boolean=true):void {
-      if (contextStack[contextStack.length-1].indexOf(x)!=-1) {
-      	if (strict) reportError("msg.multiple.var.def","K91");
-      	else return;
-      }
-      contextStack[contextStack.length-1].push(x);
-   }
-   private function addGlobalVar(x:String):void {
-   	if (contextStack[0].indexOf(x)!=-1) reportError("msg.multiple.var.def","K92");
-   	contextStack[0].push(x);
-   }
-   private function addContext():void {
-   	  contextStack.push(new Array());
-   	  todoStack.push(new Object());
-   }
-   private function popContext():void {
-   	  var w:Object=todoStack.pop();
-   	  for (var s:String in w) {
-   	  	checkVarDefined(s,w[s]);
-   	  }
-   	  contextStack.pop();
-   }
+	private function addNewVar(x:String, strict:Boolean=true):void
+	{
+	  if (contextStack[contextStack.length - 1].indexOf(x) != -1)
+	  {
+		if (strict) reportError("msg.multiple.var.def", "K91");
+		else return;
+	  }
+	  contextStack[contextStack.length - 1].push(x);
+	}
+
+	private function addGlobalVar(x:String):void
+	{
+	  if (contextStack[0].indexOf(x) != -1) reportError("msg.multiple.var.def", "K92");
+	  contextStack[0].push(x);
+	}
+
+	private function addContext():void
+	{
+	  contextStack.push(new Array());
+	  todoStack.push(new Object());
+	}
+
+	private function popContext():void
+	{
+	  var w:Object = todoStack.pop();
+	  for (var key:String in w) checkVarDefined(key, w[key]);
+	  contextStack.pop();
+	}
+
 	private static function dumpProgram(header:String, block:Block, fxnList:Array):void
 	{
 	  trace(header);
@@ -135,7 +144,7 @@ package r1.deval.parser
 
 	private function popLabel():Label { return labelStack.pop() as Label; }
 
-	private function forStatement(lineno:int,stmtLabel:Label):void
+	private function forStatement(lineno:int, stmtLabel:Label):void
 	{
 	  var iterVar:String = null;
 	  var cond:IExpr = null;
@@ -157,7 +166,7 @@ package r1.deval.parser
 		  if (peekToken() == IN)
 		  {
 			consumeToken();
-         addNewVar(iterVar);
+			addNewVar(iterVar);
 			exprFactory.createVarExpr(iterVar);
 		  }
 		  else
@@ -237,9 +246,10 @@ package r1.deval.parser
 	{
 	  var name:String = null;
 	  var tt:int = 0;
-	  if (!isAnon) {
-	  	name = checkAndConsumeToken(NAME, "msg.missing.function.name", "Kf1");
-	  	addNewVar(name);
+	  if (!isAnon)
+	  {
+		name = checkAndConsumeToken(NAME, "msg.missing.function.name", "Kf1");
+		addNewVar(name);
 	  }
 	  this.addContext();
 	  checkAndConsumeToken(LP, "msg.no.paren.parms", "Kf2");
@@ -255,8 +265,8 @@ package r1.deval.parser
 		}
 		else if (tt == NAME)
 		{
-        ml=ts.getString();
-        addNewVar(ml);
+		  ml = ts.getString();
+		  addNewVar(ml);
 		  params.push(ml);
 		  consumeToken();
 		  var ttt:int = peekToken();
@@ -317,20 +327,19 @@ package r1.deval.parser
 	  }
 	  consumeToken();
 	  var head:Block = newBlock();
-	  var v:EndBlock=functionExitBlock;
+	  var v:EndBlock = functionExitBlock;
 	  var tail:EndBlock = functionExitBlock = new EndBlock("[/" + name + "]");
 	  while (functionExitBlock != null) statement();
-	  functionExitBlock=v;
+	  functionExitBlock = v;
 	  var lastBlock:Block = popBlockTo(head);
 	  if (lastBlock.getRefCount() > 0)
 	  {
 		if (lastBlock.trueNext == null) lastBlock.trueNext = tail;
 		if (lastBlock.falseNext == null) lastBlock.falseNext = tail;
 	  }
-     this.popContext();
+	  this.popContext();
 	  return new FunctionDef(name, params, head, tail);
 	}
-
 
 	private function checkAndConsumeToken(token:int, msgId:String, id:String):String
 	{
@@ -345,17 +354,17 @@ package r1.deval.parser
 	private function enterSwitch(stmtLabel:Label, cond:IExpr, lineno:int):void
 	{
 	  checkAndConsumeToken(LC, "msg.no.brace.switch", "Ksw5");
-	  var _loc4_:String = "_switch_" + switchDepth;
-     addNewVar(_loc4_);
-	  addStmt(exprFactory.createVarExpr(_loc4_, cond), ts.getLineno());
+	  var switchVarName:String = "_switch_" + switchDepth;
+	  addNewVar(switchVarName);
+	  addStmt(exprFactory.createVarExpr(switchVarName, cond), ts.getLineno());
 	  var branch:Block = curBlock;
 	  branch.trueNext = newBlock();
 	  if (stmtLabel == null) stmtLabel = createLabel();
 	  stmtLabel.isSwitch = true;
 	  stmtLabel.block = new Block();
 	  pushLabel(stmtLabel);
-     checkVarDefined(_loc4_);
-	  var switchInfo:Object = {"switchVar":exprFactory.createAccessor(null, _loc4_), "type":0, "branchHead":curBlock, "branchCondition":branch, "label":stmtLabel};
+	  checkVarDefined(switchVarName);
+	  var switchInfo:Object = {"switchVar":exprFactory.createAccessor(null, switchVarName), "type":0, "branchHead":curBlock, "branchCondition":branch, "label":stmtLabel};
 	  var depth:int = switchDepth;
 	  switchStack.push(switchInfo);
 	  do
@@ -469,10 +478,10 @@ package r1.deval.parser
 	  labelStack = new Array();
 	  switchStack = new Array();
 	  functionList = new Array();
-     contextStack = new Array();
-     todoStack=new Array();
-     classList=new Object();
-     this.addContext();
+	  contextStack = new Array();
+	  todoStack = new Array();
+	  classList = new Object();
+	  this.addContext();
 	}
 
 	private function breakContinueStatement(isBreak:Boolean):void
@@ -491,140 +500,143 @@ package r1.deval.parser
 	  }
 	}
 
-	public function parseProgram(source:String,thisObject:Object=null,context:Object=null) : Array
+	public function parseProgram(source:String, thisObject:Object=null, context:Object=null):Array
 	{
-     try{
-         Env.pushEnv(new Env(thisObject,context));
-         initParser(source);
-         newBlock(":Main:");
-	      var root:Block = curBlock;
-	      while (peekToken() != EOF) statement();
-	      if (curBlock.trueNext == null) curBlock.trueNext = EndBlock.EXIT;
-	      popBlock();
-	      if(debugDump) dumpProgram("===== Pre-optimization =====", root, functionList);
-	      root.optimize();
-	      for each (var fd:FunctionDef in functionList)
-	      {
-		     fd.optimize();
-	      }
-	      if (debugDump) dumpProgram("\n===== Post-optimization =====", root, functionList);
-	      this.popContext();
-	      for (var s:String in this.classList) {
-	      	this.classList[s]=this.classList[s].getStaticObject();
-	      }
-	      return [root, functionList,classList];
-      }
-      finally{
-         Env.popEnv();
-      }
+	  try
+	  {
+		Env.pushEnv(new Env(thisObject, context));
+		initParser(source);
+		newBlock(":Main:");
+		var root:Block = curBlock;
+		while (peekToken() != EOF) statement();
+		if (curBlock.trueNext == null) curBlock.trueNext = EndBlock.EXIT;
+		popBlock();
+		if (debugDump) dumpProgram("===== Pre-optimization =====", root, functionList);
+		root.optimize();
+		for each (var fd:FunctionDef in functionList)
+		{
+		  fd.optimize();
+		}
+		if (debugDump) dumpProgram("\n===== Post-optimization =====", root, functionList);
+		this.popContext();
+		for (var s:String in this.classList) this.classList[s] = this.classList[s].getStaticObject();
+		return [root, functionList, classList];
+	  }
+	  finally
+	  {
+		Env.popEnv();
+	  }
 	  return null;
 	}
 
-	private function classStatement():void {
-		var varstmts:Object=new Object();
-		var staticexprs:Object=new Object();
-		var functionexprs:Object=new Object();
-		var importstmts:Array=new Array();
-		var staticgetters:Object=new Object();
-		var staticsetters:Object=new Object();
-		var vargetters:Object=new Object();
-		var varsetters:Object=new Object();
-		var v:String=checkAndConsumeToken(NAME,"msg.no.class.name","K101");
-		addContext();
-		addGlobalVar(v);
-		if (this.classList.hasOwnProperty(v)) reportError("msg.multiple.class.defn","K100");
-		checkAndConsumeToken(LC,"msg.no.brace.for.class.body","K102");
-		newBlock(":class("+v+"):");
-		var w:FunctionDef,m:int,n:Array,p:String;
-		var mw:Object;
-		while (true) {
-			switch(peekToken()) {
-				case RC:
+	private function classStatement():void
+	{
+	  var varstmts:Object = new Object();
+	  var staticexprs:Object = new Object();
+	  var functionexprs:Object = new Object();
+	  var importstmts:Array = new Array();
+	  var staticgetters:Object = new Object();
+	  var staticsetters:Object = new Object();
+	  var vargetters:Object = new Object();
+	  var varsetters:Object = new Object();
+	  var v:String = checkAndConsumeToken(NAME, "msg.no.class.name", "K101");
+	  addContext();
+	  addGlobalVar(v);
+	  if (this.classList.hasOwnProperty(v)) reportError("msg.multiple.class.defn", "K100");
+	  checkAndConsumeToken(LC,"msg.no.brace.for.class.body", "K102");
+	  newBlock(":class(" + v + "):");
+	  var w:FunctionDef, m:int, n:Array, p:String;
+	  var mw:Object;
+	  while (true)
+	  {
+		switch (peekToken())
+		{
+		  case RC:
+			consumeToken();
+			break;
+		  case STATIC:
+			consumeToken();
+			switch (peekToken())
+			{
+			  case FUNCTION:
+				consumeToken();
+				m = lineno;
+				mw = staticexprs;
+				switch (peekToken())
+				{
+				  case GET:
+					mw = staticgetters;
 					consumeToken();
 					break;
-				case STATIC:
+				  case SET:
+					mw = staticsetters;
 					consumeToken();
-					switch(peekToken()) {
-						case FUNCTION:
-							consumeToken();
-							m=lineno;
-							mw=staticexprs;
-							switch (peekToken()) {
-								case GET:
-									mw=staticgetters;
-									consumeToken();
-									break;
-								case SET:
-									mw=staticsetters;
-									consumeToken();
-									break;
-							}
-							p=checkAndConsumeToken(NAME,"msg.no.function.name","K107");
-							w=parseFunction(true);
-							if (staticexprs.hasOwnProperty(p)||mw.hasOwnProperty(p)) {
-								reportError("msg.multiple.var.defn","K103",null,null,null,m);
-							}
-							mw[p]=w;
-							w.name=p;
-							addNewVar(p,false);
-							break;
-						case VAR:
-							consumeToken();
-							n=variables(null,false);
-							if (staticexprs.hasOwnProperty(n[0])) reportError("msg.multiple.var.defn","K103");
-							staticexprs[n[0]]=n[1];
-							break;
-						default:
-							reportError("msg.invalid.static.expr","K104");
-					}
-					continue;
-				case VAR:
-					consumeToken();
-					n=variables(null,false);
-					if (varstmts.hasOwnProperty(n[0])||functionexprs.hasOwnProperty(n[0])||v==n[0]) reportError("msg.multiple.var.defn","K103");
-					varstmts[n[0]]=n[1];
-					continue;
-				case FUNCTION:
-					consumeToken();
-					m=ts.getLineno();
-					mw=functionexprs;
-					switch (peekToken()) {
-						case GET:
-							mw=vargetters;
-							consumeToken();
-							break;
-						case SET:
-							mw=varsetters;
-							consumeToken();
-							break;
-					}
-					p=checkAndConsumeToken(NAME,"msg.no.function.name","K107");
-					w=parseFunction(true);
-					if (varstmts.hasOwnProperty(p)||functionexprs.hasOwnProperty(p)||mw.hasOwnProperty(p)) {
-						reportError("msg.multiple.var.defn","K105",null,null,null,m);
-					}
-					mw[p]=w;
-					w.name=p;
-					addNewVar(p,false);
-					continue;
-				case IMPORT:
-					consumeToken();
-					importstmts.push(readImports(lineno));
-					continue;
-				case SEMI:
-					consumeToken();
-					continue;
-				case EOL:
-					reportError("msg.no.brace.closing.body","K107");
-				default:
-					reportError("msg.invalid.stmt.in.class","K106");
+					break;
+				}
+				p = checkAndConsumeToken(NAME, "msg.no.function.name", "K107");
+				w = parseFunction(true);
+				if (staticexprs.hasOwnProperty(p) || mw.hasOwnProperty(p)) reportError("msg.multiple.var.defn", "K103", null, null, null, m);
+				mw[p] = w;
+				w.name = p;
+				addNewVar(p, false);
+				break;
+			  case VAR:
+				consumeToken();
+				n = variables(null, false);
+				if (staticexprs.hasOwnProperty(n[0])) reportError("msg.multiple.var.defn", "K103");
+				staticexprs[n[0]] = n[1];
+				break;
+			  default:
+				reportError("msg.invalid.static.expr", "K104");
 			}
-			break;
+			continue;
+		  case VAR:
+			consumeToken();
+			n = variables(null,false);
+			if (varstmts.hasOwnProperty(n[0]) || functionexprs.hasOwnProperty(n[0]) || v == n[0]) reportError("msg.multiple.var.defn", "K103");
+			varstmts[n[0]] = n[1];
+			continue;
+		  case FUNCTION:
+			consumeToken();
+			m = ts.getLineno();
+			mw = functionexprs;
+			switch (peekToken())
+			{
+			  case GET:
+				mw = vargetters;
+				consumeToken();
+				break;
+			  case SET:
+				mw = varsetters;
+				consumeToken();
+				break;
+			}
+			p = checkAndConsumeToken(NAME, "msg.no.function.name", "K107");
+			w = parseFunction(true);
+			if (varstmts.hasOwnProperty(p) || functionexprs.hasOwnProperty(p) || mw.hasOwnProperty(p)) reportError("msg.multiple.var.defn", "K105", null, null, null, m);
+			mw[p] = w;
+			w.name = p;
+			addNewVar(p, false);
+			continue;
+		  case IMPORT:
+			consumeToken();
+			importstmts.push(readImports(lineno));
+			continue;
+		  case SEMI:
+			consumeToken();
+			continue;
+		  case EOL:
+			reportError("msg.no.brace.closing.body", "K107");
+		  default:
+			reportError("msg.invalid.stmt.in.class", "K106");
 		}
-		this.classList[v]=new ClassDef(v,this.classList,staticexprs,varstmts,functionexprs,importstmts,staticgetters,staticsetters,vargetters,varsetters);
-		popBlock();
-		popContext();
+		break;
+	  }
+	  this.classList[v] = new ClassDef(v, this.classList, staticexprs, varstmts, functionexprs, importstmts, staticgetters, staticsetters, vargetters, varsetters);
+	  popBlock();
+	  popContext();
 	}
+
 	private function tryStatement(arg:int):void
 	{
 	  var u:Array = statementAsBlock(":try-part:");
@@ -638,19 +650,19 @@ package r1.deval.parser
 		consumeToken();
 		checkAndConsumeToken(LP, "msg.no.paren.in.catch", "K02");
 		v = checkAndConsumeToken(NAME, "msg.no.name.in.catch", "K03");
-		pl=null;
-		switch(peekToken())
+		pl = null;
+		switch (peekToken())
 		{
 		  case COLON:
 		    consumeToken();
-		    pl=expression();
-		    checkAndConsumeToken(RP,"msg.no.right.paren","K99")
+		    pl = expression();
+		    checkAndConsumeToken(RP, "msg.no.right.paren", "K99")
 		    break;
 		  case RP:
 		    consumeToken();
 		    break;
 		  default:
-			reportError("msg.no.paren.in.catch", "K04");
+		    reportError("msg.no.paren.in.catch", "K04");
 		}
 		addContext();
 		addNewVar(v);
@@ -951,7 +963,7 @@ package r1.deval.parser
 	  var ttFlagged:int = 0;
 	  var ttFlagged2:int;
 	  var names:Array = new Array();
-     var p:ImportStmt;
+	  var p:ImportStmt;
 	  loop0:
 	  while (true)
 	  {
@@ -983,11 +995,11 @@ package r1.deval.parser
 		  case ERROR:
 		  case EOF:
 		  case RC:
-			addr113:
+//			addr113:
 			names.push(curName);
-            p=new ImportStmt(names, lineno, ts);
-            p.exec();
-			addStmt(p,lineno);
+			p = new ImportStmt(names, lineno, ts);
+			p.exec();
+			addStmt(p, lineno);
 			return p;
 		  default:
 			break loop0;
@@ -995,8 +1007,8 @@ package r1.deval.parser
 	  }
 	  if ((ttFlagged & TI_AFTER_EOL) == 0) reportError("msg.no.semi.stmt", "K66");
 	  names.push(curName);
-     p=new ImportStmt(names, lineno, ts);
-     p.exec();
+	  p = new ImportStmt(names, lineno, ts);
+	  p.exec();
 	  addStmt(p, lineno);
 	  return p;
 	}
@@ -1008,7 +1020,7 @@ package r1.deval.parser
 	  labelStack[label.name] = label;
 	}
 
-	private function variables(firstName:String=null,strictCheck:Boolean=true):Array
+	private function variables(firstName:String=null, strictCheck:Boolean=true):Array
 	{
 	  var list:IExpr = null;
 	  var name:* = undefined;
@@ -1032,7 +1044,7 @@ package r1.deval.parser
 		}
 		init = null;
 		if (matchToken(ASSIGN)) init = assignExpr();
-      addNewVar(name,strictCheck);
+		addNewVar(name, strictCheck);
 		list = exprFactory.createVarExpr(name, init, list);
 	  }
 	  while (matchToken(COMMA));

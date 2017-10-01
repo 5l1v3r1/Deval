@@ -58,7 +58,7 @@ package r1.deval
 	  });
 	}
 
-	public static function parseProgram(program:String,thisObj:Object=null,context:Object=null):Object { return new BaseParser().parseProgram(program,thisObj,context); }
+	public static function parseProgram(program:String, thisObj:Object=null, context:Object=null):Object { return new BaseParser().parseProgram(program, thisObj, context); }
 
 	public static function importClass(cls:Class):void { Env.importClass(cls); }
 
@@ -73,11 +73,11 @@ package r1.deval
 		if(_useCache && dyncode.length <= _programLimit)
 		{
 		  program = _cache[dyncode];
-		  if(program == null) _cache[dyncode] = program = parseProgram(dyncode,thisObj,context);
+		  if (program == null) _cache[dyncode] = program = parseProgram(dyncode, thisObj, context);
 		}
 		else
 		{
-		  program = parseProgram(dyncode,context);
+		  program = parseProgram(dyncode, context);
 		}
 	  }
 /*	  if(program is Array)

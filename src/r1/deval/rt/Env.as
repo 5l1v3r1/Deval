@@ -50,7 +50,7 @@ package r1.deval.rt
       
       public var _globalVars:Object = globalVars;
       public var _globalDyns:Array = globalDyns;
-      private var tempObjects:Object=new Object();
+	  private var tempObjects:Object=new Object();
       public static var INFINITE_LOOP_LIMIT:Number = 100000;
       
       private static const __errors:Object = {
@@ -118,14 +118,14 @@ package r1.deval.rt
       {
          super();
          this.context = param2==null?(new Object()):param2;
-         this.scopeChain = [[false,new ContextProxy(this.context)]];
+		 this.scopeChain = [[false,new ContextProxy(this.context)]];
          this.setThis(param1);
-         if (thisObject!=null) {
-            this.scopeChain.push([false,new ContextProxy(thisObject)]);
-            if (thisObject.prototype!=null) this.scopeChain.push([false,new ContextProxy(thisObject.prototype)]);
-         }
-         this.scopeChain.push([false,new ContextProxy(globalVars)]);
-         this.scopeChain.push([false,new ContextProxy(_global)]);
+		 if (thisObject!=null) {
+			this.scopeChain.push([false,new ContextProxy(thisObject)]);
+			if (thisObject.prototype!=null) this.scopeChain.push([false,new ContextProxy(thisObject.prototype)]);
+		 }
+		 this.scopeChain.push([false,new ContextProxy(globalVars)]);
+		 this.scopeChain.push([false,new ContextProxy(_global)]);
       }
       
       public function setThis(param1:Object):void {
@@ -157,7 +157,7 @@ package r1.deval.rt
          }
          else
          {
-            thisObject=null;
+			thisObject=null;
             thisObject_setters = thisObject_getters;
          }
       }
@@ -177,14 +177,14 @@ package r1.deval.rt
          v._globalDyns=this._globalDyns;
          return v;
       }
-      public static function get globalVars():Object {
-         if (_curEnv==null) return (new Object());
-         else return _curEnv._globalVars;
-      }
-      public static function get globalDyns():Array {
-         if (_curEnv==null) return (new Array());
-         else return _curEnv._globalDyns;
-      }
+	  public static function get globalVars():Object {
+		  if (_curEnv==null) return (new Object());
+		  else return _curEnv._globalVars;
+	  }
+	  public static function get globalDyns():Array {
+		  if (_curEnv==null) return (new Array());
+		  else return _curEnv._globalDyns;
+	  }
       public static function getClass(param1:String) : Class
       {
          var _loc2_:* = globalVars[param1];
@@ -215,14 +215,14 @@ package r1.deval.rt
          return null;
       }
       
-      public static function getProperty(param1:*,checkonly:Boolean=false) : *
+      public static function getProperty(param1:*, checkonly:Boolean=false) : *
       {
-         return _curEnv.getProperty(param1,checkonly);
+         return _curEnv.getProperty(param1, checkonly);
       }
       
       public static function isInDocQuery() : Boolean
       {
-         var _loc1_:*=peekObject();
+		 var _loc1_:*=peekObject();
          return _loc1_ is XML || _loc1_ is XMLList;
       }
       
@@ -249,17 +249,17 @@ package r1.deval.rt
             {
                pushEnv(env);
 			      w=_curEnv.context;
-               if (classList!=null) Env.pushObject(classList,true);
+			   if (classList!=null) Env.pushObject(classList,true);
                if (funcList!=null) {
                   for each(var p:FunctionDef in funcList) Env.setProperty(p.name,p.getFunction(w));
                }
                prgm.run();
                return env.returnValue;
             }
-            catch(e:Error) {
-               if (e is ErrorContainer) throw e.rtError;
-               else throw e;
-            }
+			catch(e:Error) {
+				if (e is ErrorContainer) throw e.rtError;
+				else throw e;
+			}
             finally
             {
                popEnv();
@@ -376,7 +376,7 @@ package r1.deval.rt
          }
       }
       
-      public static function popObject(temp:Boolean=false) : *
+	  public static function popObject(temp:Boolean=false) : *
       {
          return _curEnv.popObject();
       }
@@ -402,21 +402,21 @@ package r1.deval.rt
          outputFunction("[D:debug] " + getMessage.apply(null,rest));
       }
       
-      public static function pushObject(param1:*,temp:Boolean=false) : void
+	  public static function pushObject(param1:*,temp:Boolean=false) : void
       {
          _curEnv.pushObject(param1);
       }
       
       public static function peekObject() : *
       {
-         var _loc1_:*;
-         var _loc2_:Array;
-         for each (_loc2_ in _curEnv.scopeChain){
-            if (_loc2_[0]) continue;
-            _loc1_=_loc2_[1].deval_namesp::getObject();
-            break;
-         }
-         return _loc1_;
+		 var _loc1_:*;
+		 var _loc2_:Array;
+		 for each (_loc2_ in _curEnv.scopeChain){
+			if (_loc2_[0]) continue;
+			_loc1_=_loc2_[1].deval_namesp::getObject();
+			break;
+		 }
+		 return _loc1_;
       }
       
       public static function importStaticMethods(param1:Class, param2:* = null) : void
@@ -465,60 +465,59 @@ package r1.deval.rt
          return result;
       }
       
-      function getProperty(param1:*,checkonly:Boolean=false) : *
+      function getProperty(param1:*, checkonly:Boolean=false) : *
       {
-         if (param1=="null") return null;
-         if (param1=="undefined") {
-            if (checkonly) return null;
-            else return undefined;
-         }
-         var _loc2_:Array;
-         var e:Error;
+		 if (param1=="null") return null;
+		 if (param1=="undefined") {
+		   if (checkonly) return null;
+		   else return undefined;
+		 }
+		 var _loc2_:Array;
          for each(_loc2_ in scopeChain)
          {
-            if(_loc2_[1].deval_namesp::hasGetProperty(param1)){
-               if (checkonly) return null;
-               else return _loc2_[1][param1];
-            }
+			 if(_loc2_[1].deval_namesp::hasGetProperty(param1)){
+				 if (checkonly) return null;
+				 else return _loc2_[1][param1];
+			 }
          }
-         if(thisObject!=null&&(thisObject.hasOwnProperty(param1)||thisObject_getters[param1]))
+         if(thisObject != null && thisObject_getters[param1])
          {
-            if (checkonly) return null;
-            else return thisObject[param1];
+			if (checkonly) return null;
+			else return thisObject[param1];
          }
          var ad:ApplicationDomain = ApplicationDomain.currentDomain;
          var x:*;
          for (var j:int=0;j<globalDyns.length;j++) {
-            try{
-               x=ad.getDefinition(globalDyns[j]+"."+param1);
-            }
-            catch(e:Error) {continue;}
+			try{
+				x=ad.getDefinition(globalDyns[j]+"."+param1);
+			}
+			 catch(e:Error) {continue;}
             if (x!=null) {
                if (x is Class) {
                   importClass(x as Class,param1);
-                  if (checkonly) return null;
-                  else return globalVars[param1];
+				  if (checkonly) return null;
+				  else return globalVars[param1];
                }
                else if (x is Function) {
                   importFunction(param1,x as Function);
-                  if (checkonly) return null;
-                  else return globalVars[param1];
+				  if (checkonly) return null;
+				  else return globalVars[param1];
                }
             }
          }
-         try{
-            x=ad.getDefinition(param1);
-            if (x!=null) return x;
-         }
-         catch (e:Error) {}
+		 try{
+			 x=ad.getDefinition(param1);
+			 if (x!=null) return x;
+		 }
+		 catch (e:Error) {}
          return undefined;
       }
       
-      function popObject(temp:Boolean=false) : *
+	  function popObject(temp:Boolean=false) : *
       {
-         var _loc2_:Array;
-         while ((_loc2_=scopeChain.shift())[0]!=temp) continue;
-         return _loc2_[1].deval_namesp::getObject();
+		var _loc2_:Array;
+		while ((_loc2_=scopeChain.shift())[0]!=temp) continue;
+		return _loc2_[1].deval_namesp::getObject();
       }
       
       function setNewProperty(param1:*,param2:*) : void {
@@ -526,18 +525,18 @@ package r1.deval.rt
       }
       function setProperty(param1:*, param2:*) : void
       {
-         var _loc3_:Array;
+		 var _loc3_:Array;
          for each(_loc3_ in scopeChain)
          {
-            if (_loc3_[0]) continue;
-            if(_loc3_[1].deval_namesp::hasSetProperty(param1))
+			if (_loc3_[0]) continue;
+			if(_loc3_[1].deval_namesp::hasSetProperty(param1))
             {
-               _loc3_[1][param1] = param2;
+			   _loc3_[1][param1] = param2;
                return;
             }
          }
-         if (thisObject!=null&&(thisObject.hasOwnProperty(param1)||thisObject_setters[param1])) {
-            thisObject[param1]=param2;
+		 if (thisObject!=null&&(thisObject.hasOwnProperty(param1)||thisObject_setters[param1])) {
+			 thisObject[param1]=param2;
          }
          else
          {
@@ -545,9 +544,9 @@ package r1.deval.rt
          }
       }
       
-      function pushObject(param1:*,temp:Boolean=false) : void
+	  function pushObject(param1:*,temp:Boolean=false) : void
       {
-         scopeChain.unshift([temp,new ContextProxy(param1)]);
+		 scopeChain.unshift([temp,new ContextProxy(param1)]);
       }
    }
 }
