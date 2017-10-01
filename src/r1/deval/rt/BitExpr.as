@@ -1,60 +1,35 @@
 package r1.deval.rt
 {
-   import r1.deval.parser.ParserConsts;
-   
-   class BitExpr extends MultiExprBase
-   {
-       
-      
-      var op:int;
-      
-      function BitExpr(param1:IExpr, param2:*, param3:int)
-      {
-         super(param1,param2);
-         this.op = param3;
-      }
-      
-      public function isA(param1:int) : Boolean
-      {
-         return param1 == this.op;
-      }
-      
-      override public function getBoolean() : Boolean
-      {
-         return Boolean(getNumber());
-      }
-      
-      override public function getAny() : Object
-      {
-         return getNumber();
-      }
-      
-      override public function getString() : String
-      {
-         return getNumber().toString();
-      }
-      
-      override public function getNumber() : Number
-      {
-         var _loc1_:Number = first.getNumber();
-         var _loc2_:int = 0;
-         while(_loc2_ < rest.length)
-         {
-            if(op == ParserConsts.BITAND)
-            {
-               _loc1_ = _loc1_ & rest[_loc2_].getNumber();
-            }
-            else if(op == ParserConsts.BITOR)
-            {
-               _loc1_ = _loc1_ | rest[_loc2_].getNumber();
-            }
-            else
-            {
-               _loc1_ = _loc1_ ^ rest[_loc2_].getNumber();
-            }
-            _loc2_++;
-         }
-         return _loc1_;
-      }
-   }
+  import r1.deval.parser.ParserConsts;
+
+  internal class BitExpr extends MultiExprBase
+  {
+	internal var op:int;
+
+	public function BitExpr(_first:IExpr, _rest:*, _op:int)
+	{
+	  super(_first, _rest);
+	  this.op = _op;
+	}
+
+	public function isA(op:int):Boolean { return op == this.op; }
+
+	override public function getBoolean():Boolean { return Boolean(getNumber()); }
+
+	override public function getAny():Object { return getNumber(); }
+
+	override public function getString():String { return getNumber().toString(); }
+
+	override public function getNumber():Number
+	{
+	  var result:Number = first.getNumber();
+	  for (var i:int = 0; i < rest.length; i++)
+	  {
+		if (op == ParserConsts.BITAND) result = result & rest[i].getNumber();
+		else if (op == ParserConsts.BITOR) result = result | rest[i].getNumber();
+		else result = result ^ rest[i].getNumber();
+	  }
+	  return result;
+	}
+  }
 }

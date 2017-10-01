@@ -38,9 +38,9 @@ package r1.deval.rt
 	  }
 	  _optimized = !normal;
 	}
-	
+
 	public function isSimple():Boolean { return (_cond == null) && !isTryBlock; }
-	
+
 	public function addCatchBlock(err:String, errortype:IExpr, bl:Block):void
 	{
 	  isTryBlock = true;
