@@ -1,234 +1,154 @@
 package r1.deval.rt
 {
-   import r1.deval.parser.ParserConsts;
-   import r1.deval.parser.TokenStream;
-   
-   public class ExprFactory extends ParserConsts
-   {
-       
-      
-      public function ExprFactory()
-      {
-         super();
-      }
-      
-      public function createVarExpr(param1:String, param2:IExpr = null, param3:IExpr = null) : IExpr
-      {
-         return createExprList(param3,new VarExpr(param1,param2));
-      }
-      
-      public function createXMLAttrExpr(param1:IExpr) : IExpr
-      {
-         return new UnaryExpr(param1,ESCXMLATTR);
-      }
-      
-      public function createAndOrExpr(param1:IExpr, param2:*, param3:Boolean, param4:Boolean, param5:Boolean = false) : IExpr
-      {
-         if(param1 is AndOrExpr && AndOrExpr(param1).isA(param3,param4,param5))
-         {
-            AndOrExpr(param1).addOperand(param2);
-            return param1;
-         }
-         return new AndOrExpr(param1,param2,param3,param4,param5);
-      }
-      
-      public function createAccessor(param1:IExpr, param2:*, param3:IExpr = null, param4:Boolean = false, param5:Boolean = false) : IExpr
-      {
-         var _loc6_:* = param2;
-         if(_loc6_ is Constant)
-         {
-            _loc6_ = (_loc6_ as Constant).getAny();
-         }
-         if(param3 == null && !param4 && !param5)
-         {
-            return new Accessor(param1,_loc6_);
-         }
-         return new XMLAccessor(param1,_loc6_,param3,false,param4,param5);
-      }
-      
-      public function createEqRelExpr(param1:IExpr, param2:IExpr, param3:int) : IExpr
-      {
-         if(param1 is EqRelExpr)
-         {
-            EqRelExpr(param1).addOperand(param2,param3);
-            return param1;
-         }
-         return new EqRelExpr(param1,[param2],[param3]);
-      }
-      
-      public function createUnaryExpr(param1:IExpr, param2:int) : IExpr
-      {
-         if(param2 == ADD)
-         {
-            return param1;
-         }
-         if(param2 == SUB)
-         {
-            if(param1 is Constant)
-            {
-               if(param1 == Constant.ONE)
-               {
-                  return Constant.MINUSONE;
-               }
-               if(param1.getAny() is Number)
-               {
-                  return new Constant(-param1.getNumber());
-               }
-            }
-         }
-         return new UnaryExpr(param1,param2);
-      }
-      
-      public function createAssignment(param1:ISettable, param2:IExpr, param3:int, param4:int, param5:TokenStream) : IExpr
-      {
-         return new Assignment(param1,param2,param3,param4,param5);
-      }
-      
-      public function createDotQuery(param1:IExpr, param2:IExpr) : IExpr
-      {
-         return new XMLAccessor(param1,param2,null,true);
-      }
-      
-      public function createObjectInit(param1:Object, param2:Boolean = false, param3:Array = null) : IExpr
-      {
-         return !!param2?new Constant(param1):new ObjectInit(param1,param3);
-      }
-      
-      public function createBitExpr(param1:IExpr, param2:*, param3:int) : IExpr
-      {
-         if(param1 is BitExpr && BitExpr(param1).isA(param3))
-         {
-            BitExpr(param1).addOperand(param2);
-            return param1;
-         }
-         return new BitExpr(param1,param2,param3);
-      }
-      
-      public function createMulDivModExpr(param1:IExpr, param2:IExpr, param3:int) : IExpr
-      {
-         if(param1 is MulDivModExpr)
-         {
-            MulDivModExpr(param1).addOperand(param2,param3);
-            return param1;
-         }
-         return new MulDivModExpr(param1,[param2],[param3]);
-      }
-      
-      public function literal(param1:Object) : IExpr
-      {
-         if(param1 is Number)
-         {
-            if(param1 == 0)
-            {
-               return Constant.ZERO;
-            }
-            if(param1 == 1)
-            {
-               return Constant.ONE;
-            }
-            if(param1 == -1)
-            {
-               return Constant.MINUSONE;
-            }
-         }
-         else
-         {
-            if(param1 is Boolean)
-            {
-               return param1 == true?Constant.TRUE:Constant.FALSE;
-            }
-            if(param1 == null)
-            {
-               return Constant.NULL;
-            }
-            if(param1 == "")
-            {
-               return Constant.EMPTY_STRING;
-            }
-         }
-         return new Constant(param1);
-      }
-      
-      public function createQNameInit(param1:IExpr, param2:IExpr) : IExpr
-      {
-         if(param1 is Constant && param2 is Constant)
-         {
-            return new Constant(new QName(param1.getAny() as Namespace,param2.getString()));
-         }
-         return new QNameInit(param1,param2);
-      }
-      
-      public function createIsInAsExpr(param1:IExpr, param2:IExpr, param3:int) : IExpr
-      {
-         return new IsInAsExpr(param1,param2,param3);
-      }
-      
-      public function thisExpr() : IExpr
-      {
-         return ThisExpr.INSTANCE;
-      }
-      
-      public function createCallExpr(param1:IExpr) : CallExpr
-      {
-         return new CallExpr(false,param1);
-      }
-      
-      public function createAddSubExpr(param1:IExpr, param2:IExpr, param3:Boolean = true) : IExpr
-      {
-         if(param1 == null)
-         {
-            return !!param3?param2:createUnaryExpr(param2,SUB);
-         }
-         if(param1 is AddSubExpr)
-         {
-            AddSubExpr(param1).addOperand(param2,param3);
-            return param1;
-         }
-         return new AddSubExpr(param1,[param2],[param3]);
-      }
-      
-      public function regExp(param1:String, param2:String) : IExpr
-      {
-         return new Constant(new RegExp(param1,param2));
-      }
-      
-      public function createNewExpr(param1:IExpr) : CallExpr
-      {
-         return new CallExpr(true,param1);
-      }
-      
-      public function createCondExpr(param1:IExpr, param2:IExpr, param3:IExpr) : IExpr
-      {
-         return new CondExpr(param1,param2,param3);
-      }
-      
-      public function createShiftExpr(param1:IExpr, param2:IExpr, param3:int) : IExpr
-      {
-         if(param1 is ShiftExpr)
-         {
-            ShiftExpr(param1).addOperand(param2,param3);
-            return param1;
-         }
-         return new ShiftExpr(param1,[param2],[param3]);
-      }
-      
-      public function createXMLLiteralExpr(param1:IExpr, param2:IExpr) : IExpr
-      {
-         return new UnaryExpr(createAddSubExpr(param1,param2),ESCXMLTEXT);
-      }
-      
-      public function createExprList(param1:IExpr, param2:IExpr) : IExpr
-      {
-         if(param1 == null)
-         {
-            return param2;
-         }
-         if(param1 is ExprList)
-         {
-            ExprList(param1).add(param2);
-            return param1;
-         }
-         return new ExprList(param1,param2);
-      }
-   }
+  import r1.deval.parser.ParserConsts;
+  import r1.deval.parser.TokenStream;
+
+  public class ExprFactory extends ParserConsts
+  {
+	public function ExprFactory()
+	{
+	  super();
+	}
+
+	public function createVarExpr(name:String, init:IExpr=null, list:IExpr=null):IExpr { return createExprList(list, new VarExpr(name, init)); }
+
+	public function createXMLAttrExpr(expr:IExpr):IExpr { return new UnaryExpr(expr, ESCXMLATTR); }
+
+	public function createAndOrExpr(left:IExpr, rest:*, op:Boolean, isNot:Boolean, isXor:Boolean=false):IExpr
+	{
+	  if(left is AndOrExpr && AndOrExpr(left).isA(op, isNot, isXor))
+	  {
+		AndOrExpr(left).addOperand(rest);
+		return left;
+	  }
+	  return new AndOrExpr(left, rest, op, isNot, isXor);
+	}
+
+	public function createAccessor(host:IExpr, index:*, ns:IExpr=null, attrFlag:Boolean=false, descFlag:Boolean=false):IExpr
+	{
+	  var idx:* = index;
+	  if (idx is Constant) idx = (idx as Constant).getAny();
+	  if (ns == null && !attrFlag && !descFlag) return new Accessor(host, idx);
+	  return new XMLAccessor(host, idx, ns, false, attrFlag, descFlag);
+	}
+
+	public function createEqRelExpr(left:IExpr, right:IExpr, op:int):IExpr
+	{
+	  if (left is EqRelExpr)
+	  {
+		EqRelExpr(left).addOperand(right, op);
+		return left;
+	  }
+	  return new EqRelExpr(left, [right], [op]);
+	}
+
+	public function createUnaryExpr(base:IExpr, tt:int):IExpr
+	{
+	  if (tt == ADD) return base;
+	  if (tt == SUB)
+	  {
+		if (base is Constant)
+		{
+		  if (base == Constant.ONE) return Constant.MINUSONE;
+		  if (base.getAny() is Number) return new Constant(-base.getNumber());
+		}
+	  }
+	  return new UnaryExpr(base,tt);
+	}
+
+	public function createAssignment(left:ISettable, right:IExpr, op:int, lineno:int, ts:TokenStream):IExpr { return new Assignment(left, right, op, lineno, ts); }
+
+	public function createDotQuery(host:IExpr, expr:IExpr):IExpr { return new XMLAccessor(host, expr, null, true); }
+
+	public function createObjectInit(val:Object, allConstantElems:Boolean=false, elems:Array=null):IExpr { return !!allConstantElems ? new Constant(val) : new ObjectInit(val, elems); }
+
+	public function createBitExpr(left:IExpr, rest:*, op:int):IExpr
+	{
+	  if (left is BitExpr && BitExpr(left).isA(op))
+	  {
+		BitExpr(left).addOperand(rest);
+		return left;
+	  }
+	  return new BitExpr(left, rest, op);
+	}
+
+	public function createMulDivModExpr(left:IExpr, right:IExpr, op:int):IExpr
+	{
+	  if (left is MulDivModExpr)
+	  {
+		MulDivModExpr(left).addOperand(right, op);
+		return left;
+	  }
+	  return new MulDivModExpr(left,[right], [op]);
+	}
+
+	public function literal(val:Object):IExpr
+	{
+	  if (val is Number)
+	  {
+		if (val == 0) return Constant.ZERO;
+		if (val == 1) return Constant.ONE;
+		if (val == -1) return Constant.MINUSONE;
+	  }
+	  else
+	  {
+		if (val is Boolean) return val == true ? Constant.TRUE : Constant.FALSE;
+		if (val == null) return Constant.NULL;
+		if (val == "") return Constant.EMPTY_STRING;
+	  }
+	  return new Constant(val);
+	}
+
+	public function createQNameInit(ns:IExpr, name:IExpr):IExpr
+	{
+	  if (ns is Constant && name is Constant) return new Constant(new QName(ns.getAny() as Namespace, name.getString()));
+	  return new QNameInit(ns, name);
+	}
+
+	public function createIsInAsExpr(left:IExpr, right:IExpr, op:int):IExpr { return new IsInAsExpr(left, right, op); }
+
+	public function thisExpr():IExpr { return ThisExpr.INSTANCE; }
+
+	public function createCallExpr(expr:IExpr):CallExpr { return new CallExpr(false, expr); }
+
+	public function createAddSubExpr(left:IExpr, right:IExpr, op:Boolean=true):IExpr
+	{
+	  if (left == null) return !!op?right:createUnaryExpr(right, SUB);
+	  if (left is AddSubExpr)
+	  {
+		AddSubExpr(left).addOperand(right, op);
+		return left;
+	  }
+	  return new AddSubExpr(left, [right], [op]);
+	}
+
+	public function regExp(re:String, flags:String):IExpr { return new Constant(new RegExp(re, flags)); }
+
+	public function createNewExpr(expr:IExpr):CallExpr { return new CallExpr(true, expr); }
+
+	public function createCondExpr(cond:IExpr, truePart:IExpr, falsePart:IExpr):IExpr { return new CondExpr(cond, truePart, falsePart); }
+
+	public function createShiftExpr(left:IExpr, right:IExpr, op:int):IExpr
+	{
+	  if (left is ShiftExpr)
+	  {
+		ShiftExpr(left).addOperand(right, op);
+		return left;
+	  }
+	  return new ShiftExpr(left, [right], [op]);
+	}
+
+	public function createXMLLiteralExpr(lead:IExpr, tail:IExpr):IExpr { return new UnaryExpr(createAddSubExpr(lead, tail), ESCXMLTEXT); }
+
+	public function createExprList(expr:IExpr, more:IExpr):IExpr
+	{
+	  if (expr == null) return more;
+	  if (expr is ExprList)
+	  {
+		ExprList(expr).add(more);
+		return expr;
+	  }
+	  return new ExprList(expr, more);
+	}
+  }
 }
