@@ -87,7 +87,7 @@ package r1.deval.rt
 		this.scopeChain.push([false, new ContextProxy(thisObject)]);
 		if (thisObject.prototype != null) this.scopeChain.push([false, new ContextProxy(thisObject.prototype)]);
 	  }
-	  this.scopeChain.push([false, new ContextProxy(globalVars)]);
+	  this.scopeChain.push([false, new ContextProxy(_globalVars)]);
 	  this.scopeChain.push([false, new ContextProxy(_global)]);
 	}
 
@@ -372,7 +372,7 @@ package r1.deval.rt
 	  }
 	  var ad:ApplicationDomain = ApplicationDomain.currentDomain;
 	  var x:*;
-	  for (var j:int = 0; j < globalDyns.length; j++)
+	  for (var j:int = 0; j < _globalDyns.length; j++)
 	  {
 		try
 		{
@@ -388,13 +388,13 @@ package r1.deval.rt
 		  {
 			importClass(x as Class, param1);
 			if (checkonly) return null;
-			else return globalVars[param1];
+			else return _globalVars[param1];
 		  }
 		  else if (x is Function)
 		  {
 			importFunction(param1, x as Function);
 			if (checkonly) return null;
-			else return globalVars[param1];
+			else return _globalVars[param1];
 		  }
 		}
 	  }

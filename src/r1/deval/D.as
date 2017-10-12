@@ -4,6 +4,7 @@ package r1.deval
   import r1.deval.rt.Block;
   import r1.deval.rt.Env;
   import r1.deval.rt.FunctionDef;
+  import r1.deval.rt.TempObjectProxy;
 
   public class D
   {
@@ -14,6 +15,7 @@ package r1.deval
 	public static const OVERRIDE_GLOBAL_OVERRIDE:int = 1;
 	public static const OVERRIDE_GLOBAL_WARN:int = 2;
 	public static const OVERRIDE_GLOBAL_IGNORE:int = 0;
+	public static var PROTECT_CONTEXT_OBJECT:Boolean=false;
 
 	public function D() { super(); }
 
@@ -80,6 +82,7 @@ package r1.deval
 		  program = parseProgram(dyncode, thisObj, context);
 		}
 	  }
+	  if (D.PROTECT_CONTEXT_OBJECT) context=new TempObjectProxy(context);
 /*	  if(program is Array)
 	  {
 	    if(context == null)
@@ -92,7 +95,13 @@ package r1.deval
 	    }
 	    program = program[0];
 	  }	*/
-	  return Env.run(program[0] as Block, thisObj, context, program[1] as Array, program[2] as Object);
+	  try{
+	  	return Env.run(program[0] as Block, thisObj, context, program[1] as Array, program[2] as Object);
+	  }
+	  finally {
+	  	if (D.PROTECT_CONTEXT_OBJECT) context.clearTempProperties();
+	  }
+	  return null;
 	}
 
 	public static function importFunction(name:String, f:Function):void { Env.importFunction(name, f); }
