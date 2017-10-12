@@ -77,7 +77,7 @@ package r1.deval
 		}
 		else
 		{
-		  program = parseProgram(dyncode, context);
+		  program = parseProgram(dyncode, thisObj, context);
 		}
 	  }
 /*	  if(program is Array)
