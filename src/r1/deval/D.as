@@ -79,7 +79,7 @@ package r1.deval
 		}
 		else
 		{
-		  program = parseProgram(dyncode, context);
+		  program = parseProgram(dyncode, thisObj, context);
 		}
 	  }
 	  if (D.PROTECT_CONTEXT_OBJECT) context = new TempObjectProxy(context);
