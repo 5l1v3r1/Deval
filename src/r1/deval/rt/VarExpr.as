@@ -1,25 +1,21 @@
 package r1.deval.rt
 {
-   class VarExpr extends ObjectExprBase
-   {
-       
-      
-      var init:IExpr;
-      
-      var name:String;
-      
-      function VarExpr(param1:String, param2:IExpr = null)
-      {
-         super();
-         this.name = param1;
-         this.init = param2;
-      }
-      
-      override public function getAny() : Object
-      {
-         var _loc1_:Object = init == null?null:init.getAny();
-         Env.setNewProperty(name,_loc1_);
-         return _loc1_;
-      }
-   }
+  internal class VarExpr extends ObjectExprBase
+  {
+	private var init:IExpr, name:String;
+
+	public function VarExpr(_name:String, _init:IExpr=null)
+	{
+	  super();
+	  this.name = _name;
+	  this.init = _init;
+	}
+
+	override public function getAny():Object
+	{
+	  var val:Object = init == null ? null : init.getAny();
+	  Env.setNewProperty(name, val);
+	  return val;
+	}
+  }
 }
