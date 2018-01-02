@@ -1,49 +1,39 @@
 package r1.deval.rt
 {
-   class ObjectInit extends ObjectExprBase
-   {
-       
-      
-      var elems:Array;
-      
-      var objectInit:Object;
-      
-      function ObjectInit(param1:Object, param2:Array)
-      {
-         super();
-         objectInit = param1;
-         this.elems = param2;
-      }
-      
-      override public function getAny() : Object
-      {
-         var _loc1_:* = undefined;
-         var _loc3_:String = null;
-         var _loc4_:Array = null;
-         if(objectInit is Array)
-         {
-            _loc4_ = [];
-            for each(_loc1_ in objectInit as Array)
-            {
-               if(_loc1_ is IExpr)
-               {
-                  _loc1_ = (_loc1_ as IExpr).getAny();
-               }
-               _loc4_.push(_loc1_);
-            }
-            return _loc4_;
-         }
-         var _loc2_:Object = {};
-         for each(_loc3_ in elems)
-         {
-            _loc1_ = objectInit[_loc3_];
-            if(_loc1_ is IExpr)
-            {
-               _loc1_ = (_loc1_ as IExpr).getAny();
-            }
-            _loc2_[_loc3_] = _loc1_;
-         }
-         return _loc2_;
-      }
-   }
+  public class ObjectInit extends ObjectExprBase
+  {
+	private var elems:Array, objectInit:Object;
+
+	public function ObjectInit(objInit:Object, _elems:Array)
+	{
+	  super();
+	  objectInit = objInit;
+	  this.elems = _elems;
+	}
+
+	override public function getAny() : Object
+	{
+	  var x:* = undefined;
+	  var y:String = null;
+	  var arr:Array = null;
+	  if (objectInit is Array)
+	  {
+		arr = [];
+		for each (x in objectInit as Array)
+		{
+		  if (x is IExpr) x = (x as IExpr).getAny();
+		  arr.push(x);
+		}
+		return arr;
+	  }
+	  var obj:Object = new Object();
+	  for each (y in elems)
+	  {
+		x = objectInit[y];
+		if (x is IExpr) x = (x as IExpr).getAny();
+		obj[y] = x;
+	  }
+	  return obj;
+	}
+  }
 }

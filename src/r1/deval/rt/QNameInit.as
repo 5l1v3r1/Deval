@@ -1,23 +1,16 @@
 package r1.deval.rt
 {
-   class QNameInit extends ObjectExprBase
-   {
-       
-      
-      var ns:IExpr;
-      
-      var name:IExpr;
-      
-      function QNameInit(param1:IExpr, param2:IExpr)
-      {
-         super();
-         this.ns = param1;
-         this.name = param2;
-      }
-      
-      override public function getAny() : Object
-      {
-         return new QName(ns.getAny() as Namespace,name.getString());
-      }
-   }
+  public class QNameInit extends ObjectExprBase
+  {
+	private var ns:IExpr, name:IExpr;
+
+	public function QNameInit(_ns:IExpr, _name:IExpr)
+	{
+	  super();
+	  this.ns = _ns;
+	  this.name = _name;
+	}
+
+	override public function getAny():Object { return new QName(ns.getAny() as Namespace,name.getString()); }
+  }
 }

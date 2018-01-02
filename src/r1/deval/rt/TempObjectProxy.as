@@ -1,4 +1,5 @@
-package r1.deval.rt {
+package r1.deval.rt
+{
   import flash.utils.Proxy;
   import flash.utils.flash_proxy;
 
@@ -19,7 +20,7 @@ package r1.deval.rt {
 	  this.tempObj = new Object();
 	  return;
 	}
-	
+
 	flash_proxy override function hasProperty(name:*):Boolean
 	{
 	  if (this.obj[name] != undefined) return true;

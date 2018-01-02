@@ -1,13 +1,9 @@
 package r1.deval.rt
 {
-   public interface IStmt
-   {
-       
-      
-      function exec() : void;
-      
-      function get lineno() : int;
-	  
-	  function get line() : String;
-   }
+  public interface IStmt
+  {
+	function exec():void;
+	function get lineno():int;
+	function get line():String;
+  }
 }

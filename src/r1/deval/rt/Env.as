@@ -172,8 +172,8 @@ package r1.deval.rt
 
 	public static function isInDocQuery():Boolean
 	{
-		var x:* = peekObject();
-		return x is XML || x is XMLList;
+	  var x:* = peekObject();
+	  return x is XML || x is XMLList;
 	}
 
 	public static function reportWarning(...args):void { outputFunction("[D:warn ] " + getMessage.apply(null, args)); }
