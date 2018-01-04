@@ -126,6 +126,8 @@ package r1.deval.rt
 	public function exec():Block
 	{
 	  var s:IStmt = null;
+	  var onError:Boolean=false;
+	  var finallyRan:Boolean=false;
 	  if (stmts != null)
 	  {
 		var ee:Error;
@@ -155,6 +157,7 @@ package r1.deval.rt
 			}
 			if (isTryBlock)
 			{
+			  onError=true;
 			  var res:*, ok:Boolean=false;
 			  var l:Object, m:IExpr;
 			  var o:Class;
@@ -179,7 +182,6 @@ package r1.deval.rt
 				}
 				finally {Env.popObject(true);}
 			  }
-			  if (finallyBlock != null) finallyBlock.run();
 			  if (ok)
 			  {
 				Env.setReturnValue(res);
@@ -188,12 +190,36 @@ package r1.deval.rt
 			}
 			throw ee;
 		  }
+		  finally {
+		  	if (onError && finallyBlock!=null) {
+				var vl:*=Env.getReturnValue();
+				try {
+					finallyBlock.run();
+				}
+				finally {
+					finallyRan=true;
+					Env.setReturnValue(vl);
+				}
+		  	}
+		  }
 		}
+		if (isTryBlock&&!finallyRan&&finallyBlock!=null) {
+			var vl:*=Env.getReturnValue();
+			try {
+				finallyBlock.run();
+			}
+			finally {
+				Env.setReturnValue(vl);
+			}
+		} 
 	  }
 	  if (_cond == null || _cond.getBoolean()) return _trueNext;
 	  return _falseNext;
 	}
 
+	private function executeFinallyBlock():void {
+		
+	}
 	public function get trueNext():Block { return _trueNext; }
 
 	public function setCond(expr:IExpr, lineno:int=-1):void

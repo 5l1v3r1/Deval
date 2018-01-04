@@ -9,7 +9,7 @@ package r1.deval.rt
 
 	public function RTError(param1:String, param2:String=null, param3:String=null, _linenos:Array=null, _lines:Array=null)
 	{
-	  super(ParseError.processMessage(param1));
+	  super(param1==null?"":param1);
 	  _param1 = param2;
 	  _param2 = param3;
 	  if (_lines == null) this.lines = new Array();
